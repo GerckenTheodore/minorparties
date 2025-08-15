@@ -1,0 +1,18 @@
+Package: IScorePackage
+Type: Package
+Title: R Package To Assist In Calculating Minor Political Parties' I-Scores.
+Version: 0.1.0
+Authors@R: c(
+    person(
+      "Theodore", "Gercken",
+      email = "tgercken@hamilton.edu",
+      role = c("aut", "cre")
+    )
+  )
+Description: I-Scores are a simple way to measure the success minor political parties have in influencing the major parties in their environment.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
