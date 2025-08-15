@@ -1,6 +1,6 @@
 Package: IScorePackage
 Type: Package
-Title: R Package To Assist In Calculating Minor Political Parties' I-Scores.
+Title: An R Package To Assist In Calculating Minor Political Parties' I-Scores
 Version: 0.1.0
 Authors@R: c(
     person(
@@ -14,5 +14,13 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Suggests: 
-    testthat (>= 3.0.0)
+    devtools,
+    testthat (>= 3.0.0),
+    withr
 Config/testthat/edition: 3
+Imports: 
+    huggingfaceR,
+    reticulate
+Remotes:
+  farach/huggingfaceR
+RoxygenNote: 7.3.2
