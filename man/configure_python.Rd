@@ -2,7 +2,7 @@
 % Please edit documentation in R/configure_python.R
 \name{configure_python}
 \alias{configure_python}
-\title{Helper function to setup python tools required for processing platforms.}
+\title{Helper function to setup python tools required for processing platforms}
 \usage{
 configure_python(
   env_name = "iscores",
@@ -12,7 +12,7 @@ configure_python(
 )
 }
 \arguments{
-\item{env_name}{Name of the conda environment ("iscores" by default)}
+\item{env_name}{Name of the conda environment to setup ("iscores" by default)}
 
 \item{install}{Whether to install missing packages (TRUE by default)}
 
@@ -21,8 +21,8 @@ configure_python(
 \item{manifestoberta_model_id}{Version of the ManifestoBERTA model to use ("2024-1-1" by default)}
 }
 \value{
-Returns invisible(TRUE) when setup is successful, otherwise it returns a descriptive error.
+Returns invisible(TRUE) when setup is successful, otherwise it provides a descriptive error
 }
 \description{
-Helper function to setup python tools required for processing platforms.
+Helper function to setup python tools required for processing platforms
 }

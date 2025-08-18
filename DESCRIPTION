@@ -14,13 +14,19 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Suggests: 
-    devtools,
     testthat (>= 3.0.0),
     withr
 Config/testthat/edition: 3
 Imports: 
+    dplyr,
     huggingfaceR,
-    reticulate
+    purrr,
+    reticulate,
+    spacyr,
+    stringi,
+    stringr,
+    tibble,
+    tidyr
 Remotes:
   farach/huggingfaceR
 RoxygenNote: 7.3.2
