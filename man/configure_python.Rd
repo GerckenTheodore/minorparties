@@ -4,19 +4,10 @@
 \alias{configure_python}
 \title{Helper function to setup python tools required for processing platforms}
 \usage{
-configure_python(
-  env_name = "iscores",
-  install = TRUE,
-  python_version = "latest",
-  manifestoberta_model_id = "2024-1-1"
-)
+configure_python(env_name = "iscores", manifestoberta_model_id = "2024-1-1")
 }
 \arguments{
-\item{env_name}{Name of the conda environment to setup ("iscores" by default)}
-
-\item{install}{Whether to install missing packages (TRUE by default)}
-
-\item{python_version}{Version of Python to use if a new environment must be created ("latest" by default)}
+\item{env_name}{Name of the python virtual environment to setup ("iscores" by default)}
 
 \item{manifestoberta_model_id}{Version of the ManifestoBERTA model to use ("2024-1-1" by default)}
 }
