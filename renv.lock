@@ -9,6 +9,24 @@
     ]
   },
   "Packages": {
+    "ISOcodes": {
+      "Package": "ISOcodes",
+      "Version": "2025.05.18",
+      "Source": "Repository",
+      "Encoding": "UTF-8",
+      "Title": "Selected ISO Codes",
+      "Authors@R": "c(person(\"Christian\", \"Buchta\", role = \"aut\"), person(\"Kurt\", \"Hornik\", role = c(\"aut\", \"cre\"), email = \"Kurt.Hornik@R-project.org\", comment = c(ORCID = \"0000-0003-4198-9911\")))",
+      "Description": "ISO language, territory, currency, script and character codes. Provides ISO 639 language codes, ISO 3166 territory codes, ISO 4217 currency codes, ISO 15924 script codes, and the ISO 8859 character codes as well as the UN M.49 area codes.",
+      "Depends": [
+        "R (>= 3.5.0)"
+      ],
+      "License": "GPL-2",
+      "LazyData": "yes",
+      "NeedsCompilation": "no",
+      "Author": "Christian Buchta [aut], Kurt Hornik [aut, cre] (ORCID: <https://orcid.org/0000-0003-4198-9911>)",
+      "Maintainer": "Kurt Hornik <Kurt.Hornik@R-project.org>",
+      "Repository": "RSPM"
+    },
     "Matrix": {
       "Package": "Matrix",
       "Version": "1.6-5",
@@ -80,6 +98,42 @@
       "Maintainer": "Winston Chang <winston@posit.co>",
       "Repository": "CRAN"
     },
+    "RSpectra": {
+      "Package": "RSpectra",
+      "Version": "0.16-2",
+      "Source": "Repository",
+      "Type": "Package",
+      "Title": "Solvers for Large-Scale Eigenvalue and SVD Problems",
+      "Date": "2024-07-18",
+      "Authors@R": "c( person(\"Yixuan\", \"Qiu\", , \"yixuan.qiu@cos.name\", c(\"aut\", \"cre\")), person(\"Jiali\", \"Mei\", , \"vermouthmjl@gmail.com\", \"aut\", comment = \"Function interface of matrix operation\"), person(\"Gael\", \"Guennebaud\", , \"gael.guennebaud@inria.fr\", \"ctb\", comment = \"Eigenvalue solvers from the 'Eigen' library\"), person(\"Jitse\", \"Niesen\", , \"jitse@maths.leeds.ac.uk\", \"ctb\", comment = \"Eigenvalue solvers from the 'Eigen' library\") )",
+      "Description": "R interface to the 'Spectra' library <https://spectralib.org/> for large-scale eigenvalue and SVD problems. It is typically used to compute a few eigenvalues/vectors of an n by n matrix, e.g., the k largest eigenvalues, which is usually more efficient than eigen() if k << n. This package provides the 'eigs()' function that does the similar job as in 'Matlab', 'Octave', 'Python SciPy' and 'Julia'. It also provides the 'svds()' function to calculate the largest k singular values and corresponding singular vectors of a real matrix. The matrix to be computed on can be dense, sparse, or in the form of an operator defined by the user.",
+      "License": "MPL (>= 2)",
+      "URL": "https://github.com/yixuan/RSpectra",
+      "BugReports": "https://github.com/yixuan/RSpectra/issues",
+      "Depends": [
+        "R (>= 3.0.2)"
+      ],
+      "Imports": [
+        "Matrix (>= 1.1-0)",
+        "Rcpp (>= 0.11.5)"
+      ],
+      "Suggests": [
+        "knitr",
+        "rmarkdown",
+        "prettydoc"
+      ],
+      "LinkingTo": [
+        "Rcpp",
+        "RcppEigen (>= 0.3.3.3.0)"
+      ],
+      "VignetteBuilder": "knitr, rmarkdown",
+      "RoxygenNote": "7.1.2",
+      "NeedsCompilation": "yes",
+      "Author": "Yixuan Qiu [aut, cre], Jiali Mei [aut] (Function interface of matrix operation), Gael Guennebaud [ctb] (Eigenvalue solvers from the 'Eigen' library), Jitse Niesen [ctb] (Eigenvalue solvers from the 'Eigen' library)",
+      "Maintainer": "Yixuan Qiu <yixuan.qiu@cos.name>",
+      "Repository": "RSPM",
+      "Encoding": "UTF-8"
+    },
     "Rcpp": {
       "Package": "Rcpp",
       "Version": "1.1.0",
@@ -108,6 +162,83 @@
       "Author": "Dirk Eddelbuettel [aut, cre] (ORCID: <https://orcid.org/0000-0001-6419-907X>), Romain Francois [aut] (ORCID: <https://orcid.org/0000-0002-2444-4226>), JJ Allaire [aut] (ORCID: <https://orcid.org/0000-0003-0174-9868>), Kevin Ushey [aut] (ORCID: <https://orcid.org/0000-0003-2880-7407>), Qiang Kou [aut] (ORCID: <https://orcid.org/0000-0001-6786-5453>), Nathan Russell [aut], Iñaki Ucar [aut] (ORCID: <https://orcid.org/0000-0001-6403-5550>), Doug Bates [aut] (ORCID: <https://orcid.org/0000-0001-8316-9503>), John Chambers [aut]",
       "Maintainer": "Dirk Eddelbuettel <edd@debian.org>",
       "Repository": "CRAN"
+    },
+    "RcppArmadillo": {
+      "Package": "RcppArmadillo",
+      "Version": "14.6.0-1",
+      "Source": "Repository",
+      "Type": "Package",
+      "Title": "'Rcpp' Integration for the 'Armadillo' Templated Linear Algebra Library",
+      "Date": "2025-07-02",
+      "Authors@R": "c(person(\"Dirk\", \"Eddelbuettel\", role = c(\"aut\", \"cre\"), email = \"edd@debian.org\", comment = c(ORCID = \"0000-0001-6419-907X\")), person(\"Romain\", \"Francois\", role = \"aut\", comment = c(ORCID = \"0000-0002-2444-4226\")), person(\"Doug\", \"Bates\", role = \"aut\", comment = c(ORCID = \"0000-0001-8316-9503\")), person(\"Binxiang\", \"Ni\", role = \"aut\"), person(\"Conrad\", \"Sanderson\", role = \"aut\", comment = c(ORCID = \"0000-0002-0049-4501\")))",
+      "Description": "'Armadillo' is a templated C++ linear algebra library (by Conrad Sanderson) that aims towards a good balance between speed and ease of use. Integer, floating point and complex numbers are supported, as well as a subset of trigonometric and statistics functions. Various matrix decompositions are provided through optional integration with LAPACK and ATLAS libraries.  The 'RcppArmadillo' package includes the header files from the templated 'Armadillo' library. Thus users do not need to install 'Armadillo' itself in order to use 'RcppArmadillo'. From release 7.800.0 on, 'Armadillo' is licensed under Apache License 2; previous releases were under licensed as MPL 2.0 from version 3.800.0 onwards and LGPL-3 prior to that; 'RcppArmadillo' (the 'Rcpp' bindings/bridge to Armadillo) is licensed under the GNU GPL version 2 or later, as is the rest of 'Rcpp'.",
+      "License": "GPL (>= 2)",
+      "LazyLoad": "yes",
+      "Depends": [
+        "R (>= 3.3.0)"
+      ],
+      "LinkingTo": [
+        "Rcpp"
+      ],
+      "Imports": [
+        "Rcpp (>= 1.0.12)",
+        "stats",
+        "utils",
+        "methods"
+      ],
+      "Suggests": [
+        "tinytest",
+        "Matrix (>= 1.3.0)",
+        "pkgKitten",
+        "reticulate",
+        "slam"
+      ],
+      "URL": "https://github.com/RcppCore/RcppArmadillo, https://dirk.eddelbuettel.com/code/rcpp.armadillo.html",
+      "BugReports": "https://github.com/RcppCore/RcppArmadillo/issues",
+      "RoxygenNote": "6.0.1",
+      "NeedsCompilation": "yes",
+      "Author": "Dirk Eddelbuettel [aut, cre] (ORCID: <https://orcid.org/0000-0001-6419-907X>), Romain Francois [aut] (ORCID: <https://orcid.org/0000-0002-2444-4226>), Doug Bates [aut] (ORCID: <https://orcid.org/0000-0001-8316-9503>), Binxiang Ni [aut], Conrad Sanderson [aut] (ORCID: <https://orcid.org/0000-0002-0049-4501>)",
+      "Maintainer": "Dirk Eddelbuettel <edd@debian.org>",
+      "Repository": "RSPM",
+      "Encoding": "UTF-8"
+    },
+    "RcppEigen": {
+      "Package": "RcppEigen",
+      "Version": "0.3.4.0.2",
+      "Source": "Repository",
+      "Type": "Package",
+      "Title": "'Rcpp' Integration for the 'Eigen' Templated Linear Algebra Library",
+      "Date": "2024-08-23",
+      "Authors@R": "c(person(\"Doug\", \"Bates\", role = \"aut\", comment = c(ORCID = \"0000-0001-8316-9503\")), person(\"Dirk\", \"Eddelbuettel\", role = c(\"aut\", \"cre\"), email = \"edd@debian.org\", comment = c(ORCID = \"0000-0001-6419-907X\")), person(\"Romain\", \"Francois\", role = \"aut\", comment = c(ORCID = \"0000-0002-2444-4226\")), person(\"Yixuan\", \"Qiu\", role = \"aut\", comment = c(ORCID = \"0000-0003-0109-6692\")), person(\"Authors of\", \"Eigen\", role = \"cph\", comment = \"Authorship and copyright in included Eigen library as detailed in inst/COPYRIGHTS\"))",
+      "Copyright": "See the file COPYRIGHTS for various Eigen copyright details",
+      "Description": "R and 'Eigen' integration using 'Rcpp'. 'Eigen' is a C++ template library for linear algebra: matrices, vectors, numerical solvers and related algorithms.  It supports dense and sparse matrices on integer, floating point and complex numbers, decompositions of such matrices, and solutions of linear systems. Its performance on many algorithms is comparable with some of the best implementations based on 'Lapack' and level-3 'BLAS'. The 'RcppEigen' package includes the header files from the 'Eigen' C++ template library. Thus users do not need to install 'Eigen' itself in order to use 'RcppEigen'. Since version 3.1.1, 'Eigen' is licensed under the Mozilla Public License (version 2); earlier version were licensed under the GNU LGPL version 3 or later. 'RcppEigen' (the 'Rcpp' bindings/bridge to 'Eigen') is licensed under the GNU GPL version 2 or later, as is the rest of 'Rcpp'.",
+      "License": "GPL (>= 2) | file LICENSE",
+      "LazyLoad": "yes",
+      "Depends": [
+        "R (>= 3.6.0)"
+      ],
+      "LinkingTo": [
+        "Rcpp"
+      ],
+      "Imports": [
+        "Rcpp (>= 0.11.0)",
+        "stats",
+        "utils"
+      ],
+      "Suggests": [
+        "Matrix",
+        "inline",
+        "tinytest",
+        "pkgKitten",
+        "microbenchmark"
+      ],
+      "URL": "https://github.com/RcppCore/RcppEigen, https://dirk.eddelbuettel.com/code/rcpp.eigen.html",
+      "BugReports": "https://github.com/RcppCore/RcppEigen/issues",
+      "NeedsCompilation": "yes",
+      "Author": "Doug Bates [aut] (<https://orcid.org/0000-0001-8316-9503>), Dirk Eddelbuettel [aut, cre] (<https://orcid.org/0000-0001-6419-907X>), Romain Francois [aut] (<https://orcid.org/0000-0002-2444-4226>), Yixuan Qiu [aut] (<https://orcid.org/0000-0003-0109-6692>), Authors of Eigen [cph] (Authorship and copyright in included Eigen library as detailed in inst/COPYRIGHTS)",
+      "Maintainer": "Dirk Eddelbuettel <edd@debian.org>",
+      "Repository": "RSPM",
+      "Encoding": "UTF-8"
     },
     "RcppTOML": {
       "Package": "RcppTOML",
@@ -229,6 +360,23 @@
       "NeedsCompilation": "yes",
       "Author": "Gábor Csárdi [aut, cre], Hadley Wickham [ctb], Kirill Müller [ctb], Salim Brüggemann [ctb] (<https://orcid.org/0000-0002-5329-5987>), Posit Software, PBC [cph, fnd]",
       "Maintainer": "Gábor Csárdi <gabor@posit.co>",
+      "Repository": "CRAN"
+    },
+    "codetools": {
+      "Package": "codetools",
+      "Version": "0.2-19",
+      "Source": "Repository",
+      "Priority": "recommended",
+      "Author": "Luke Tierney <luke-tierney@uiowa.edu>",
+      "Description": "Code analysis tools for R.",
+      "Title": "Code Analysis Tools for R",
+      "Depends": [
+        "R (>= 2.1)"
+      ],
+      "Maintainer": "Luke Tierney <luke-tierney@uiowa.edu>",
+      "URL": "https://gitlab.com/luke-tierney/codetools",
+      "License": "GPL",
+      "NeedsCompilation": "no",
       "Repository": "CRAN"
     },
     "cpp11": {
@@ -409,6 +557,60 @@
       "Maintainer": "Hadley Wickham <hadley@posit.co>",
       "Repository": "RSPM"
     },
+    "fastmatch": {
+      "Package": "fastmatch",
+      "Version": "1.1-6",
+      "Source": "Repository",
+      "Title": "Fast 'match()' Function",
+      "Author": "Simon Urbanek [aut, cre, cph] (https://urbanek.org, <https://orcid.org/0000-0003-2297-1732>)",
+      "Authors@R": "person(\"Simon\", \"Urbanek\", role=c(\"aut\",\"cre\",\"cph\"), email=\"Simon.Urbanek@r-project.org\", comment=c(\"https://urbanek.org\", ORCID=\"0000-0003-2297-1732\"))",
+      "Maintainer": "Simon Urbanek <simon.urbanek@r-project.org>",
+      "Description": "Package providing a fast match() replacement for cases that require repeated look-ups. It is slightly faster that R's built-in match() function on first match against a table, but extremely fast on any subsequent lookup as it keeps the hash table in memory.",
+      "License": "GPL-2",
+      "Depends": [
+        "R (>= 2.3.0)"
+      ],
+      "URL": "http://www.rforge.net/fastmatch",
+      "NeedsCompilation": "yes",
+      "Repository": "RSPM",
+      "Encoding": "UTF-8"
+    },
+    "foreach": {
+      "Package": "foreach",
+      "Version": "1.5.2",
+      "Source": "Repository",
+      "Type": "Package",
+      "Title": "Provides Foreach Looping Construct",
+      "Authors@R": "c(person(\"Folashade\", \"Daniel\", role=\"cre\", email=\"fdaniel@microsoft.com\"), person(\"Hong\", \"Ooi\", role=\"ctb\"), person(\"Rich\", \"Calaway\", role=\"ctb\"), person(\"Microsoft\", role=c(\"aut\", \"cph\")), person(\"Steve\", \"Weston\", role=\"aut\"))",
+      "Description": "Support for the foreach looping construct.  Foreach is an idiom that allows for iterating over elements in a collection, without the use of an explicit loop counter.  This package in particular is intended to be used for its return value, rather than for its side effects.  In that sense, it is similar to the standard lapply function, but doesn't require the evaluation of a function.  Using foreach without side effects also facilitates executing the loop in parallel.",
+      "License": "Apache License (== 2.0)",
+      "URL": "https://github.com/RevolutionAnalytics/foreach",
+      "BugReports": "https://github.com/RevolutionAnalytics/foreach/issues",
+      "Depends": [
+        "R (>= 2.5.0)"
+      ],
+      "Imports": [
+        "codetools",
+        "utils",
+        "iterators"
+      ],
+      "Suggests": [
+        "randomForest",
+        "doMC",
+        "doParallel",
+        "testthat",
+        "knitr",
+        "rmarkdown"
+      ],
+      "VignetteBuilder": "knitr",
+      "RoxygenNote": "7.1.1",
+      "Collate": "'callCombine.R' 'foreach.R' 'do.R' 'foreach-ext.R' 'foreach-pkg.R' 'getDoPar.R' 'getDoSeq.R' 'getsyms.R' 'iter.R' 'nextElem.R' 'onLoad.R' 'setDoPar.R' 'setDoSeq.R' 'times.R' 'utils.R'",
+      "NeedsCompilation": "no",
+      "Author": "Folashade Daniel [cre], Hong Ooi [ctb], Rich Calaway [ctb], Microsoft [aut, cph], Steve Weston [aut]",
+      "Maintainer": "Folashade Daniel <fdaniel@microsoft.com>",
+      "Repository": "RSPM",
+      "Encoding": "UTF-8"
+    },
     "generics": {
       "Package": "generics",
       "Version": "0.1.4",
@@ -439,6 +641,49 @@
       "NeedsCompilation": "no",
       "Author": "Hadley Wickham [aut, cre] (ORCID: <https://orcid.org/0000-0003-4757-117X>), Max Kuhn [aut], Davis Vaughan [aut], Posit Software, PBC [cph, fnd] (ROR: <https://ror.org/03wc8by49>)",
       "Maintainer": "Hadley Wickham <hadley@posit.co>",
+      "Repository": "RSPM"
+    },
+    "glmnet": {
+      "Package": "glmnet",
+      "Version": "4.1-10",
+      "Source": "Repository",
+      "Type": "Package",
+      "Title": "Lasso and Elastic-Net Regularized Generalized Linear Models",
+      "Date": "2025-07-15",
+      "Authors@R": "c(person(\"Jerome\", \"Friedman\", role=c(\"aut\")), person(\"Trevor\", \"Hastie\", role=c(\"aut\", \"cre\"), email = \"hastie@stanford.edu\"), person(\"Rob\", \"Tibshirani\", role=c(\"aut\")), person(\"Balasubramanian\", \"Narasimhan\", role=c(\"aut\")), person(\"Kenneth\",\"Tay\",role=c(\"aut\")), person(\"Noah\", \"Simon\", role=c(\"aut\")), person(\"Junyang\", \"Qian\", role=c(\"ctb\")), person(\"James\", \"Yang\", role=c(\"aut\")))",
+      "Depends": [
+        "R (>= 3.6.0)",
+        "Matrix (>= 1.0-6)"
+      ],
+      "Imports": [
+        "methods",
+        "utils",
+        "foreach",
+        "shape",
+        "survival",
+        "Rcpp"
+      ],
+      "Suggests": [
+        "knitr",
+        "lars",
+        "testthat",
+        "xfun",
+        "rmarkdown"
+      ],
+      "SystemRequirements": "C++17",
+      "Description": "Extremely efficient procedures for fitting the entire lasso or elastic-net regularization path for linear regression, logistic and multinomial regression models, Poisson regression, Cox model,  multiple-response Gaussian, and the grouped multinomial regression; see <doi:10.18637/jss.v033.i01> and <doi:10.18637/jss.v039.i05>. There are two new and important additions. The family argument can be a GLM family object, which opens the door to any programmed family (<doi:10.18637/jss.v106.i01>). This comes with a modest computational cost, so when the built-in families suffice, they should be used instead.  The other novelty is the relax option, which refits each of the active sets in the path unpenalized. The algorithm uses cyclical coordinate descent in a path-wise fashion, as described in the papers cited.",
+      "License": "GPL-2",
+      "VignetteBuilder": "knitr",
+      "Encoding": "UTF-8",
+      "URL": "https://glmnet.stanford.edu",
+      "RoxygenNote": "7.3.2",
+      "LinkingTo": [
+        "RcppEigen",
+        "Rcpp"
+      ],
+      "NeedsCompilation": "yes",
+      "Author": "Jerome Friedman [aut], Trevor Hastie [aut, cre], Rob Tibshirani [aut], Balasubramanian Narasimhan [aut], Kenneth Tay [aut], Noah Simon [aut], Junyang Qian [ctb], James Yang [aut]",
+      "Maintainer": "Trevor Hastie <hastie@stanford.edu>",
       "Repository": "RSPM"
     },
     "glue": {
@@ -621,6 +866,30 @@
       "NeedsCompilation": "no",
       "Author": "Alex Farach [cre], Sam Terfa [aut], Jack Penzer [aut]",
       "Maintainer": "Alex Farach <alexfarach@gmail.com>"
+    },
+    "iterators": {
+      "Package": "iterators",
+      "Version": "1.0.14",
+      "Source": "Repository",
+      "Type": "Package",
+      "Title": "Provides Iterator Construct",
+      "Authors@R": "c(person(\"Folashade\", \"Daniel\", role=\"cre\", email=\"fdaniel@microsoft.com\"), person(\"Revolution\", \"Analytics\", role=c(\"aut\", \"cph\")), person(\"Steve\", \"Weston\", role=\"aut\"))",
+      "Description": "Support for iterators, which allow a programmer to traverse through all the elements of a vector, list, or other collection of data.",
+      "URL": "https://github.com/RevolutionAnalytics/iterators",
+      "Depends": [
+        "R (>= 2.5.0)",
+        "utils"
+      ],
+      "Suggests": [
+        "RUnit",
+        "foreach"
+      ],
+      "License": "Apache License (== 2.0)",
+      "NeedsCompilation": "no",
+      "Author": "Folashade Daniel [cre], Revolution Analytics [aut, cph], Steve Weston [aut]",
+      "Maintainer": "Folashade Daniel <fdaniel@microsoft.com>",
+      "Repository": "RSPM",
+      "Encoding": "UTF-8"
     },
     "jsonlite": {
       "Package": "jsonlite",
@@ -965,6 +1234,121 @@
       "Maintainer": "Hadley Wickham <hadley@posit.co>",
       "Repository": "CRAN"
     },
+    "quanteda": {
+      "Package": "quanteda",
+      "Version": "4.3.1",
+      "Source": "Repository",
+      "Title": "Quantitative Analysis of Textual Data",
+      "Description": "A fast, flexible, and comprehensive framework for  quantitative text analysis in R.  Provides functionality for corpus management, creating and manipulating tokens and n-grams, exploring keywords in context,  forming and manipulating sparse matrices of documents by features and feature co-occurrences, analyzing keywords, computing feature similarities and distances, applying content dictionaries, applying supervised and unsupervised machine learning,  visually representing text and text analyses, and more.",
+      "Authors@R": "c(  person(\"Kenneth\", \"Benoit\", email = \"kbenoit@lse.ac.uk\", role = c(\"cre\", \"aut\", \"cph\"), comment = c(ORCID = \"0000-0002-0797-564X\")),  person(\"Kohei\", \"Watanabe\", email = \"watanabe.kohei@gmail.com\", role = \"aut\", comment = c(ORCID = \"0000-0001-6519-5265\")),  person(\"Haiyan\", \"Wang\", email = \"whyinsa@yahoo.com\", role = \"aut\", comment = c(ORCID = \"0000-0003-4992-4311\")), person(\"Paul\", \"Nulty\", email = \"paul.nulty@gmail.com\", role = \"aut\", comment = c(ORCID = \"0000-0002-7214-4666\")),  person(\"Adam\", \"Obeng\", email = \"quanteda@binaryeagle.com\", role = \"aut\", comment = c(ORCID = \"0000-0002-2906-4775\")), person(\"Stefan\", \"Müller\", email = \"stefan.mueller@ucd.ie\", role = \"aut\", comment = c(ORCID = \"0000-0002-6315-4125\")), person(\"Akitaka\", \"Matsuo\", email = \"a.matsuo@essex.ac.uk\", role = \"aut\", comment = c(ORCID = \"0000-0002-3323-6330\")), person(\"William\", \"Lowe\", email = \"lowe@hertie-school.org\", role = \"aut\", comment = c(ORCID = \"0000-0002-1549-6163\")), person(\"Christian\", \"Müller\", email = \"C.Mueller@lse.ac.uk\", role = \"ctb\"), person(\"Olivier\", \"Delmarcelle\", email = \"olivier.delmarcelle@ugent.be\", role = \"ctb\", comment = c(ORCID = \"0000-0003-4347-070X\")), person(\"European Research Council\", role = \"fnd\", comment = \"ERC-2011-StG 283794-QUANTESS\") )",
+      "License": "GPL-3",
+      "Depends": [
+        "R (>= 4.1.0)",
+        "methods"
+      ],
+      "Imports": [
+        "fastmatch",
+        "jsonlite",
+        "lifecycle",
+        "magrittr",
+        "Matrix (>= 1.5-0)",
+        "Rcpp (>= 0.12.12)",
+        "SnowballC",
+        "stopwords",
+        "stringi",
+        "xml2",
+        "yaml"
+      ],
+      "LinkingTo": [
+        "Rcpp"
+      ],
+      "NeedsCompilation": "yes",
+      "Suggests": [
+        "rmarkdown",
+        "spelling",
+        "testthat",
+        "formatR",
+        "tm (>= 0.6)",
+        "knitr",
+        "lsa",
+        "rlang",
+        "slam"
+      ],
+      "Enhances": [
+        "dplyr",
+        "lda",
+        "purrr",
+        "spacyr",
+        "stm",
+        "text2vec",
+        "tibble",
+        "tidytext",
+        "tokenizers",
+        "topicmodels"
+      ],
+      "URL": "https://quanteda.io",
+      "Encoding": "UTF-8",
+      "BugReports": "https://github.com/quanteda/quanteda/issues",
+      "LazyData": "TRUE",
+      "VignetteBuilder": "knitr",
+      "Language": "en-GB",
+      "RoxygenNote": "7.3.2",
+      "Collate": "'RcppExports.R' 'tokenizers.R' 'meta.R' 'quanteda-documentation.R' 'aaa.R' 'bootstrap_dfm.R' 'casechange-functions.R' 'char_select.R' 'convert.R' 'corpus-addsummary-metadata.R' 'corpus-methods.R' 'corpus.R' 'corpus_chunk.R' 'corpus_group.R' 'corpus_reshape.R' 'corpus_sample.R' 'corpus_segment.R' 'corpus_subset.R' 'corpus_trim.R' 'data-documentation.R' 'dfm-classes.R' 'dfm-methods.R' 'dfm-print.R' 'dfm-subsetting.R' 'dfm.R' 'dfm_compress.R' 'dfm_group.R' 'dfm_lookup.R' 'dfm_match.R' 'dfm_replace.R' 'dfm_sample.R' 'dfm_select.R' 'dfm_sort.R' 'dfm_subset.R' 'dfm_trim.R' 'dfm_weight.R' 'dictionaries.R' 'dimnames.R' 'fcm-classes.R' 'docnames.R' 'docvars.R' 'fcm-methods.R' 'fcm-print.R' 'fcm-subsetting.R' 'fcm.R' 'fcm_select.R' 'index.R' 'kwic.R' 'message.R' 'nfunctions.R' 'object-builder.R' 'object2fixed.R' 'pattern2fixed.R' 'phrases.R' 'quanteda-package.R' 'quanteda_options.R' 'spacyr-methods.R' 'stopwords.R' 'summary.R' 'textmodel.R' 'textplot.R' 'texts.R' 'textstat.R' 'tokens-methods.R' 'tokens.R' 'tokens_chunk.R' 'tokens_compound.R' 'tokens_group.R' 'tokens_lookup.R' 'tokens_ngrams.R' 'tokens_replace.R' 'tokens_restore.R' 'tokens_sample.R' 'tokens_segment.R' 'tokens_select.R' 'tokens_split.R' 'tokens_subset.R' 'tokens_trim.R' 'tokens_xptr.R' 'utils.R' 'validator.R' 'wordstem.R' 'zzz.R'",
+      "Author": "Kenneth Benoit [cre, aut, cph] (ORCID: <https://orcid.org/0000-0002-0797-564X>), Kohei Watanabe [aut] (ORCID: <https://orcid.org/0000-0001-6519-5265>), Haiyan Wang [aut] (ORCID: <https://orcid.org/0000-0003-4992-4311>), Paul Nulty [aut] (ORCID: <https://orcid.org/0000-0002-7214-4666>), Adam Obeng [aut] (ORCID: <https://orcid.org/0000-0002-2906-4775>), Stefan Müller [aut] (ORCID: <https://orcid.org/0000-0002-6315-4125>), Akitaka Matsuo [aut] (ORCID: <https://orcid.org/0000-0002-3323-6330>), William Lowe [aut] (ORCID: <https://orcid.org/0000-0002-1549-6163>), Christian Müller [ctb], Olivier Delmarcelle [ctb] (ORCID: <https://orcid.org/0000-0003-4347-070X>), European Research Council [fnd] (ERC-2011-StG 283794-QUANTESS)",
+      "Maintainer": "Kenneth Benoit <kbenoit@lse.ac.uk>",
+      "Repository": "RSPM"
+    },
+    "quanteda.textmodels": {
+      "Package": "quanteda.textmodels",
+      "Version": "0.9.10",
+      "Source": "Repository",
+      "Type": "Package",
+      "Title": "Scaling Models and Classifiers for Textual Data",
+      "Description": "Scaling models and classifiers for sparse matrix objects representing  textual data in the form of a document-feature matrix.  Includes original  implementations of 'Laver', 'Benoit', and Garry's (2003) <doi:10.1017/S0003055403000698>, 'Wordscores' model, the Perry and 'Benoit' (2017) <doi:10.48550/arXiv.1710.08963> class affinity scaling model,  and the 'Slapin' and 'Proksch' (2008) <doi:10.1111/j.1540-5907.2008.00338.x> 'wordfish' model, as well as methods for correspondence analysis, latent semantic analysis, and fast Naive Bayes and linear 'SVMs' specially designed for sparse textual data.",
+      "Authors@R": "c(  person(\"Kenneth\", \"Benoit\", email = \"kbenoit@quanteda.org\", role = c(\"cre\", \"aut\", \"cph\"), comment = c(ORCID = \"0000-0002-0797-564X\")),  person(\"Kohei\", \"Watanabe\", email = \"watanabe.kohei@gmail.com\", role = \"aut\", comment = c(ORCID = \"0000-0001-6519-5265\")),  person(\"Haiyan\", \"Wang\", email = \"whyinsa@yahoo.com\", role = \"aut\", comment = c(ORCID = \"0000-0003-4992-4311\")), person(\"Patrick O.\", \"Perry\", email = \"patperry@gmail.com\", role = \"aut\", comment = c(ORCID = \"0000-0001-7460-127X\")), person(\"Benjamin\", \"Lauderdale\", email = \"b.e.lauderdale@lse.ac.uk\", role = \"aut\", comment = c(ORCID = \"0000-0003-3090-0969\")),     person(\"Johannes\", \"Gruber\", email = \"JohannesB.Gruber@gmail.com\", role = \"aut\", comment = c(ORCID = \"0000-0001-9177-1772\")), person(\"William\", \"Lowe\", email = \"lowe@hertie-school.org\", role = \"aut\", comment = c(ORCID = \"0000-0002-1549-6163\")), person(\"Vikas\", \"Sindhwani\", email = \"vikas.sindhwani@gmail.com\", role = \"cph\",  comment = \"authored svmlin C++ source code\"), person(\"European Research Council\", role = \"fnd\", comment = \"ERC-2011-StG 283794-QUANTESS\") )",
+      "Depends": [
+        "R (>= 3.1.0)",
+        "methods"
+      ],
+      "Imports": [
+        "glmnet",
+        "Matrix (>= 1.2)",
+        "quanteda (>= 4.0.0)",
+        "RSpectra",
+        "Rcpp (>= 0.12.12)",
+        "stringi"
+      ],
+      "Suggests": [
+        "ca",
+        "covr",
+        "fastNaiveBayes",
+        "knitr",
+        "lsa",
+        "microbenchmark",
+        "naivebayes",
+        "quanteda.textplots",
+        "spelling",
+        "testthat",
+        "rmarkdown"
+      ],
+      "LinkingTo": [
+        "Rcpp",
+        "RcppArmadillo (>= 0.7.600.1.0)",
+        "quanteda"
+      ],
+      "URL": "https://github.com/quanteda/quanteda.textmodels",
+      "License": "GPL-3",
+      "Encoding": "UTF-8",
+      "LazyData": "true",
+      "Language": "en-GB",
+      "RoxygenNote": "7.3.2",
+      "Collate": "'RcppExports.R' 'quanteda.textmodels-package.R' 'data-documentation.R' 'textmodel-methods.R' 'textmodel_affinity.R' 'textmodel_ca.R' 'textmodel_lsa.R' 'textmodel_lr.R' 'textmodel_nb.R' 'textmodel_svmlin.R' 'textmodel_wordfish.R' 'textmodel_wordscores.R' 'textplot_influence.R' 'utils.R'",
+      "VignetteBuilder": "knitr",
+      "NeedsCompilation": "yes",
+      "Author": "Kenneth Benoit [cre, aut, cph] (<https://orcid.org/0000-0002-0797-564X>), Kohei Watanabe [aut] (<https://orcid.org/0000-0001-6519-5265>), Haiyan Wang [aut] (<https://orcid.org/0000-0003-4992-4311>), Patrick O. Perry [aut] (<https://orcid.org/0000-0001-7460-127X>), Benjamin Lauderdale [aut] (<https://orcid.org/0000-0003-3090-0969>), Johannes Gruber [aut] (<https://orcid.org/0000-0001-9177-1772>), William Lowe [aut] (<https://orcid.org/0000-0002-1549-6163>), Vikas Sindhwani [cph] (authored svmlin C++ source code), European Research Council [fnd] (ERC-2011-StG 283794-QUANTESS)",
+      "Maintainer": "Kenneth Benoit <kbenoit@quanteda.org>",
+      "Repository": "RSPM"
+    },
     "rappdirs": {
       "Package": "rappdirs",
       "Version": "0.3.3",
@@ -1182,6 +1566,27 @@
       "Maintainer": "Kirill Müller <kirill@cynkra.com>",
       "Repository": "CRAN"
     },
+    "shape": {
+      "Package": "shape",
+      "Version": "1.4.6.1",
+      "Source": "Repository",
+      "Title": "Functions for Plotting Graphical Shapes, Colors",
+      "Author": "Karline Soetaert <karline.soetaert@nioz.nl>",
+      "Maintainer": "Karline Soetaert <karline.soetaert@nioz.nl>",
+      "Depends": [
+        "R (>= 2.01)"
+      ],
+      "Imports": [
+        "stats",
+        "graphics",
+        "grDevices"
+      ],
+      "Description": "Functions for plotting graphical shapes such as ellipses, circles, cylinders, arrows, ...",
+      "License": "GPL (>= 3)",
+      "NeedsCompilation": "no",
+      "Repository": "RSPM",
+      "Encoding": "UTF-8"
+    },
     "spacyr": {
       "Package": "spacyr",
       "Version": "1.3.0",
@@ -1219,6 +1624,38 @@
       "VignetteBuilder": "R.rsp",
       "NeedsCompilation": "no",
       "Author": "Kenneth Benoit [cre, aut, cph] (<https://orcid.org/0000-0002-0797-564X>), Akitaka Matsuo [aut] (<https://orcid.org/0000-0002-3323-6330>), Johannes Gruber [ctb] (<https://orcid.org/0000-0001-9177-1772>), European Research Council [fnd] (ERC-2011-StG 283794-QUANTESS)",
+      "Maintainer": "Kenneth Benoit <kbenoit@lse.ac.uk>",
+      "Repository": "RSPM"
+    },
+    "stopwords": {
+      "Package": "stopwords",
+      "Version": "2.3",
+      "Source": "Repository",
+      "Type": "Package",
+      "Title": "Multilingual Stopword Lists",
+      "Authors@R": "c(person(\"Kenneth\", \"Benoit\", email = \"kbenoit@lse.ac.uk\", role = c(\"aut\", \"cre\")), person(\"David\", \"Muhr\", email = \"muhrdavid+github@gmail.com\", role = \"aut\"),  person(\"Kohei\", \"Watanabe\", email = \"watanabe.kohei@gmail.com\", role = \"aut\"))",
+      "Description": "Provides multiple sources of stopwords, for use in text analysis and natural language processing.",
+      "License": "MIT + file LICENSE",
+      "Depends": [
+        "R (>= 2.10)"
+      ],
+      "Imports": [
+        "ISOcodes"
+      ],
+      "Suggests": [
+        "covr",
+        "quanteda",
+        "spelling",
+        "testthat"
+      ],
+      "URL": "https://github.com/quanteda/stopwords",
+      "BugReports": "https://github.com/quanteda/stopwords/issues",
+      "Encoding": "UTF-8",
+      "LazyData": "true",
+      "Language": "en-GB",
+      "RoxygenNote": "7.1.1",
+      "NeedsCompilation": "no",
+      "Author": "Kenneth Benoit [aut, cre], David Muhr [aut], Kohei Watanabe [aut]",
       "Maintainer": "Kenneth Benoit <kbenoit@lse.ac.uk>",
       "Repository": "RSPM"
     },
@@ -1294,6 +1731,36 @@
       "NeedsCompilation": "no",
       "Author": "Hadley Wickham [aut, cre, cph], Posit Software, PBC [cph, fnd]",
       "Maintainer": "Hadley Wickham <hadley@posit.co>",
+      "Repository": "CRAN"
+    },
+    "survival": {
+      "Package": "survival",
+      "Version": "3.5-8",
+      "Source": "Repository",
+      "Title": "Survival Analysis",
+      "Priority": "recommended",
+      "Date": "2024-02-13",
+      "Depends": [
+        "R (>= 3.5.0)"
+      ],
+      "Imports": [
+        "graphics",
+        "Matrix",
+        "methods",
+        "splines",
+        "stats",
+        "utils"
+      ],
+      "LazyData": "Yes",
+      "LazyDataCompression": "xz",
+      "ByteCompile": "Yes",
+      "Authors@R": "c(person(c(\"Terry\", \"M\"), \"Therneau\", email=\"therneau.terry@mayo.edu\", role=c(\"aut\", \"cre\")), person(\"Thomas\", \"Lumley\", role=c(\"ctb\", \"trl\"), comment=\"original S->R port and R maintainer until 2009\"), person(\"Atkinson\", \"Elizabeth\", role=\"ctb\"), person(\"Crowson\", \"Cynthia\", role=\"ctb\"))",
+      "Description": "Contains the core survival analysis routines, including definition of Surv objects,  Kaplan-Meier and Aalen-Johansen (multi-state) curves, Cox models, and parametric accelerated failure time models.",
+      "License": "LGPL (>= 2)",
+      "URL": "https://github.com/therneau/survival",
+      "NeedsCompilation": "yes",
+      "Author": "Terry M Therneau [aut, cre], Thomas Lumley [ctb, trl] (original S->R port and R maintainer until 2009), Atkinson Elizabeth [ctb], Crowson Cynthia [ctb]",
+      "Maintainer": "Terry M Therneau <therneau.terry@mayo.edu>",
       "Repository": "CRAN"
     },
     "sys": {
@@ -1592,6 +2059,67 @@
       "Author": "Jim Hester [aut], Lionel Henry [aut, cre], Kirill Müller [aut], Kevin Ushey [aut], Hadley Wickham [aut], Winston Chang [aut], Jennifer Bryan [ctb], Richard Cotton [ctb], Posit Software, PBC [cph, fnd]",
       "Maintainer": "Lionel Henry <lionel@posit.co>",
       "Repository": "CRAN"
+    },
+    "xml2": {
+      "Package": "xml2",
+      "Version": "1.3.8",
+      "Source": "Repository",
+      "Title": "Parse XML",
+      "Authors@R": "c( person(\"Hadley\", \"Wickham\", role = \"aut\"), person(\"Jim\", \"Hester\", role = \"aut\"), person(\"Jeroen\", \"Ooms\", email = \"jeroenooms@gmail.com\", role = c(\"aut\", \"cre\")), person(\"Posit Software, PBC\", role = c(\"cph\", \"fnd\")), person(\"R Foundation\", role = \"ctb\", comment = \"Copy of R-project homepage cached as example\") )",
+      "Description": "Bindings to 'libxml2' for working with XML data using a simple,  consistent interface based on 'XPath' expressions. Also supports XML schema validation; for 'XSLT' transformations see the 'xslt' package.",
+      "License": "MIT + file LICENSE",
+      "URL": "https://xml2.r-lib.org, https://r-lib.r-universe.dev/xml2",
+      "BugReports": "https://github.com/r-lib/xml2/issues",
+      "Depends": [
+        "R (>= 3.6.0)"
+      ],
+      "Imports": [
+        "cli",
+        "methods",
+        "rlang (>= 1.1.0)"
+      ],
+      "Suggests": [
+        "covr",
+        "curl",
+        "httr",
+        "knitr",
+        "magrittr",
+        "mockery",
+        "rmarkdown",
+        "testthat (>= 3.2.0)",
+        "xslt"
+      ],
+      "VignetteBuilder": "knitr",
+      "Config/Needs/website": "tidyverse/tidytemplate",
+      "Encoding": "UTF-8",
+      "RoxygenNote": "7.2.3",
+      "SystemRequirements": "libxml2: libxml2-dev (deb), libxml2-devel (rpm)",
+      "Collate": "'S4.R' 'as_list.R' 'xml_parse.R' 'as_xml_document.R' 'classes.R' 'format.R' 'import-standalone-obj-type.R' 'import-standalone-purrr.R' 'import-standalone-types-check.R' 'init.R' 'nodeset_apply.R' 'paths.R' 'utils.R' 'xml2-package.R' 'xml_attr.R' 'xml_children.R' 'xml_document.R' 'xml_find.R' 'xml_missing.R' 'xml_modify.R' 'xml_name.R' 'xml_namespaces.R' 'xml_node.R' 'xml_nodeset.R' 'xml_path.R' 'xml_schema.R' 'xml_serialize.R' 'xml_structure.R' 'xml_text.R' 'xml_type.R' 'xml_url.R' 'xml_write.R' 'zzz.R'",
+      "Config/testthat/edition": "3",
+      "NeedsCompilation": "yes",
+      "Author": "Hadley Wickham [aut], Jim Hester [aut], Jeroen Ooms [aut, cre], Posit Software, PBC [cph, fnd], R Foundation [ctb] (Copy of R-project homepage cached as example)",
+      "Maintainer": "Jeroen Ooms <jeroenooms@gmail.com>",
+      "Repository": "CRAN"
+    },
+    "yaml": {
+      "Package": "yaml",
+      "Version": "2.3.10",
+      "Source": "Repository",
+      "Type": "Package",
+      "Title": "Methods to Convert R Data to YAML and Back",
+      "Date": "2024-07-22",
+      "Suggests": [
+        "RUnit"
+      ],
+      "Author": "Shawn P Garbett [aut], Jeremy Stephens [aut, cre], Kirill Simonov [aut], Yihui Xie [ctb], Zhuoer Dong [ctb], Hadley Wickham [ctb], Jeffrey Horner [ctb], reikoch [ctb], Will Beasley [ctb], Brendan O'Connor [ctb], Gregory R. Warnes [ctb], Michael Quinn [ctb], Zhian N. Kamvar [ctb], Charlie Gao [ctb]",
+      "Maintainer": "Shawn Garbett <shawn.garbett@vumc.org>",
+      "License": "BSD_3_clause + file LICENSE",
+      "Description": "Implements the 'libyaml' 'YAML' 1.1 parser and emitter (<https://pyyaml.org/wiki/LibYAML>) for R.",
+      "URL": "https://github.com/vubiostat/r-yaml/",
+      "BugReports": "https://github.com/vubiostat/r-yaml/issues",
+      "NeedsCompilation": "yes",
+      "Repository": "CRAN",
+      "Encoding": "UTF-8"
     }
   }
 }

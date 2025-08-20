@@ -13,15 +13,15 @@ process_platform_emphasis(tibble, cleaning = TRUE)
 \item{cleaning}{Whether to apply basic text-cleaning before processing platforms (TRUE by default)}
 }
 \value{
-The same tibble with two additional list columns (if a platform cannot be processed due to a lack of text, the function will return an empty list for that platform):
+The same tibble with two rm list columns (if a platform cannot be processed due to a lack of text, the function will return an empty list for that platform):
  - `sentence_emphasis_scores`: A list of tibbles, one per sentence in the platform (in order). Each tibble has:
-    - `sentence`: the sentence (character)
-    - `scores`: a tibble with the sentence's emphasis scores, containing:
-        - `issue`: the issue's name (character)
-        - `score`: the sentence's score for that issue (numeric, summing to 100)
+    - `sentence`: The sentence (character)
+    - `scores`: A tibble with the sentence's emphasis scores, containing:
+        - `issue`: The issue's name (character)
+        - `score`: The sentence's score for that issue (numeric, summing to 100)
  - `overall_emphasis_scores`: A tibble with the platform's overall emphasis scores, containing:
-    - `issue`: the issue's name (character)
-    - `score`: the platform's score for that issue (numeric, summing to 100)
+    - `issue`: The issue's name (character)
+    - `score`: The platform's score for that issue (numeric, summing to 100)
 }
 \description{
 Function that takes platforms, splits them into sentences, and calculates issue-area emphasis scores

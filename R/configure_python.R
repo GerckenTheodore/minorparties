@@ -1,5 +1,3 @@
-iscores_environment <- new.env(parent = emptyenv())
-
 #' Helper function to setup python tools required for processing platforms
 #'
 #' @param env_name Name of the python virtual environment to setup ("iscores" by default)
@@ -18,9 +16,9 @@ configure_python <- function(env_name = "iscores", manifestoberta_model_id = "20
   if (!(env_name %in% reticulate::virtualenv_list())) {
     reticulate::virtualenv_create(envname = env_name, python = Sys.which("python3"))
   }
-  spacyr::spacy_install()
+  suppressWarnings(spacyr::spacy_install())
   try(spacyr::spacy_finalize(), silent = TRUE)
-  spacyr::spacy_initialize()
+  suppressMessages(spacyr::spacy_initialize())
 
   # Setup ManifestoBERTA
   reticulate::virtualenv_install(envname = Sys.getenv("SPACY_PYTHON"), packages = c("transformers", "torch", "sentencepiece"), ignore_installed = TRUE)

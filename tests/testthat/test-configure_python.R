@@ -5,8 +5,7 @@ setup_test <- function() {
   # Defer cleanup
   withr::defer(
     {
-      environment <- IScorePackage:::iscores_environment
-      rm(list = ls(envir = environment, all.names = TRUE), envir = environment)
+      rm(list = ls(envir = iscores_environment, all.names = TRUE), envir = iscores_environment)
       rm(list = ls(envir = test, all.names = TRUE), envir = test)
     },
     envir = testthat::teardown_env()

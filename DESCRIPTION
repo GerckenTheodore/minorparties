@@ -21,6 +21,8 @@ Imports:
     dplyr,
     huggingfaceR,
     purrr,
+    quanteda,
+    quanteda.textmodels,
     reticulate,
     spacyr,
     stringi,
