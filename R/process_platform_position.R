@@ -36,15 +36,15 @@ process_platform_position <- function(tibble, inclusion_threshold = 0.2) {
     dplyr::select(party, sentence, issue)
 
   # Calculate the position scores for each issue-area
-  position_table <- purrr::map_dfr(issues, function(issue) {
+  position_table <- purrr::map_dfr(issues, function(issue_v) {
     selected_sentences <- labeled_sentences |>
-      dplyr::filter(issue == !!issue) |>
+      dplyr::filter(issue == issue_v) |>
       dplyr::select(party, sentence)
 
     # Return if there are not enough sentences for a Wordfish analysis
     if (nrow(selected_sentences) < 3) {
       return(tibble::tibble(
-        issue,
+        issue = issue_v,
         position_table = list(tibble::tibble(
           party = tibble$party,
           score = NA_real_,
@@ -70,7 +70,7 @@ process_platform_position <- function(tibble, inclusion_threshold = 0.2) {
     # Return if, after creating the dfm, there are not enough documents or terms
     if (length(quanteda::docnames(dfm)) < 2 || sum(dfm) == 0) {
       return(tibble::tibble(
-        issue,
+        issue = issue_v,
         position_table = list(tibble::tibble(
           party = tibble$party,
           score = NA_real_,
@@ -93,7 +93,7 @@ process_platform_position <- function(tibble, inclusion_threshold = 0.2) {
 
     if (any(is.na(wordfish$theta))) {
       return(tibble::tibble(
-        issue,
+        issue = issue_v,
         position_table = list(tibble::tibble(
           party = tibble$party,
           score = NA_real_,
@@ -103,7 +103,7 @@ process_platform_position <- function(tibble, inclusion_threshold = 0.2) {
       ))
     }
     tibble::tibble(
-      issue,
+      issue = issue_v,
       position_table = list(
         dplyr::bind_rows(
           tibble::tibble(party = wordfish$docs, score = wordfish$theta, se = wordfish$se.theta, convergence),
@@ -115,14 +115,14 @@ process_platform_position <- function(tibble, inclusion_threshold = 0.2) {
 
   # Reformat results back into original tibble
   tibble |>
-    dplyr::mutate(position_scores = purrr::map(tibble$party, function(part) {
-      purrr::map_dfr(issues, function(issu) {
+    dplyr::mutate(position_scores = purrr::map(tibble$party, function(party_v) {
+      purrr::map_dfr(issues, function(issue_v) {
         position_table |>
-          dplyr::filter(issue == issu) |>
+          dplyr::filter(issue == issue_v) |>
           dplyr::pull(position_table) |>
           purrr::pluck(1) |>
-          dplyr::filter(party == part) |>
-          dplyr::mutate(issue = issu) |>
+          dplyr::filter(party == party_v) |>
+          dplyr::mutate(issue = issue_v) |>
           dplyr::select(issue, score, se, convergence)
       })
     }))

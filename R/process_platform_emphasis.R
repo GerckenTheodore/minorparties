@@ -49,12 +49,12 @@ process_platform_emphasis <- function(tibble, cleaning = TRUE) {
 
   # Split each platform into scored sentences
   tibble <- tibble |>
-    dplyr::mutate(sentence_emphasis_scores = purrr::map(text, function(text) {
-      if (is.na(text) || !nzchar(text)) {
+    dplyr::mutate(sentence_emphasis_scores = purrr::map(text, function(text_v) {
+      if (is.na(text_v) || !nzchar(text_v)) {
         return(list())
       }
 
-      sentences <- spacyr::spacy_tokenize(text, what = "sentence", simplify = TRUE)
+      sentences <- spacyr::spacy_tokenize(text_v, what = "sentence", simplify = TRUE)
       sentences <- sentences[nchar(sentences) > 0][[1]]
       if (!length(sentences)) {
         return(list())
