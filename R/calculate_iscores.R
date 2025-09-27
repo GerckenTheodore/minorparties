@@ -13,13 +13,14 @@
 #'  - `position_scores`: A tibble with the platform's position-score (and standard error) for each issue-area (flagged if the Wordfish model did not converge)
 #'  - `minor_party`: Whether the party is a minor party (boolean)
 #'  - `major_party_platforms`: Only needed for minor parties. A list of lists with "before", "after", and "weight" entries, containing the name of a major party's platform before or after the minor party and the weight that should be given to the party's changes in IScore calculations.
-#' @param p_threshold The maximum p-value for a relationship to be considered significant (0.05 by default)
-#' @param core_threshold The minimum score a minor party must have for an issue-area for it to be considered a core issue (0.05 by default)
+#' @param p_threshold The maximum p-value for a relationship to be considered significant (0.05 by default).
+#' @param core_threshold The minimum score a minor party must have for an issue-area for it to be considered a core issue (0.05 by default).
+#' @param exclude_nonconvergence Whether to treat issues where the Wordfish model did not converge as NA when calculating Ip Scores (TRUE by default).
 #' @param collapse Whether to remove all columns required for this function besides `party` from the final return (FALSE by default).
 #' @return The same tibble, only containing the minor parties, with the additional list-column `scores` containing `ie_score`, `ie_score_interpreted`, and `ip_score`.
 #' @export
 
-calculate_iscores <- function(tibble, p_threshold = 0.05, core_threshold = 0.05, collapse = FALSE) {
+calculate_iscores <- function(tibble, p_threshold = 0.05, core_threshold = 0.05, exclude_nonconvergence = TRUE, collapse = FALSE) {
   validator_tibble <- validation(tibble, "iscores")
   if (nrow(validator_tibble) > 0) {
     print(validator_tibble)
@@ -28,6 +29,7 @@ calculate_iscores <- function(tibble, p_threshold = 0.05, core_threshold = 0.05,
   if (!is.numeric(p_threshold) || p_threshold < 0 || p_threshold > 1) rlang::abort("The p_threshold must be a number between 0 and 1.")
   if (!is.numeric(core_threshold) || core_threshold < 0 || core_threshold > 1) rlang::abort("The core_threshold must be a number between 0 and 1.")
   if (!is.logical(collapse)) rlang::abort("The collapse input must be a boolean.")
+  if (!is.logical(exclude_nonconvergence)) rlang::abort("The exclude_nonconvergence input must be a boolean.")
   tibble <- tibble::as_tibble(tibble)
 
   # Pull the major party data relevant for each minor party
@@ -138,6 +140,12 @@ calculate_iscores <- function(tibble, p_threshold = 0.05, core_threshold = 0.05,
         after_distance <- abs(minor_position_scores - after_scores)
         change <- before_distance - after_distance
         weight <- major$weight
+
+        if (exclude_nonconvergence) {
+          convergence <- sort_scores(major$before$position_scores, "convergence") & sort_scores(major$after$position_scores, "convergence")
+          before_scores[!convergence] <- NA
+          before_se[!convergence] <- NA
+        }
 
         statistical_significance <- rep(NA_real_, length(before_scores))
         not_NA <- !is.na(before_scores) & !is.na(before_se) & !is.na(after_scores) & !is.na(after_se)
