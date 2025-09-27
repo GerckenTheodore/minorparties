@@ -18,10 +18,10 @@ The same tibble with two rm list columns (if a platform cannot be processed due 
     - `sentence`: The sentence (character)
     - `scores`: A tibble with the sentence's emphasis scores, containing:
         - `issue`: The issue's name (character)
-        - `score`: The sentence's score for that issue (numeric, summing to 100)
+        - `score`: The sentence's score for that issue (numeric, summing to 1)
  - `overall_emphasis_scores`: A tibble with the platform's overall emphasis scores, containing:
     - `issue`: The issue's name (character)
-    - `score`: The platform's score for that issue (numeric, summing to 100)
+    - `score`: The platform's score for that issue (numeric, summing to 1)
 }
 \description{
 Function that takes platforms, splits them into sentences, and calculates issue-area emphasis scores

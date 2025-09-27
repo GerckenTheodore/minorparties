@@ -6,26 +6,20 @@
 #'     - `sentence`: The sentence (character)
 #'     - `scores`: A tibble with the sentence's emphasis scores, containing:
 #'         - `issue`: The issue's name (character) (every sentence in every platform must have the same issue-areas)
-#'         - `score`: The sentence's score for that issue (numeric, summing to 100)
+#'         - `score`: The sentence's score for that issue (numeric, summing to 1)
 #' @param inclusion_threshold The minimum score a sentence must have for an issue-area to be included in the overall emphasis scores (0.2 by default)
 #' @return The same tibble with an addition list column `position_scores`, which contains a tibble for each platform with its position-score (and standard error) for each issue-area (flagged if the Wordfish model did not converge)
+#' @export
 
 process_platform_position <- function(tibble, inclusion_threshold = 0.2) {
-  # Check that issue areas are consistent across all sentences
-  issues <- tibble$sentence_emphasis_scores[[1]][[1]]$scores[[1]]$issue
-  if (!all(purrr::map_lgl(tibble$sentence_emphasis_scores, function(platform) {
-    all(purrr::map_lgl(platform, function(sentence) {
-      issues_here <- sentence$scores[[1]]$issue
-      setequal(issues_here, issues)
-    }))
-  }))) {
-    stop("Every sentence in every platform must have the same issue-areas.")
+  # Check that the inputs are correctly structured
+  validator_tibble <- validation(tibble, "position")
+  if (nrow(validator_tibble) > 0) {
+    print(validator_tibble)
+    rlang::abort("The tibble is incorrectly structured.", tibble = validator_tibble)
   }
-
-  # Check that parties are unique
-  if (length(unique(tibble$party)) != nrow(tibble)) {
-    stop("The 'party' column must be unique for each platform.")
-  }
+  if (!is.numeric(inclusion_threshold) || inclusion_threshold < 0 || inclusion_threshold > 1) rlang::abort("The inclusion_threshold must be a number between 0 and 1.")
+  tibble <- tibble::as_tibble(tibble)
 
   # Pull the sentences that correspond to each issue
   labeled_sentences <- tibble |>

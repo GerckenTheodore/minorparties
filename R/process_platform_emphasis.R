@@ -8,13 +8,22 @@
 #'     - `sentence`: The sentence (character)
 #'     - `scores`: A tibble with the sentence's emphasis scores, containing:
 #'         - `issue`: The issue's name (character)
-#'         - `score`: The sentence's score for that issue (numeric, summing to 100)
+#'         - `score`: The sentence's score for that issue (numeric, summing to 1)
 #'  - `overall_emphasis_scores`: A tibble with the platform's overall emphasis scores, containing:
 #'     - `issue`: The issue's name (character)
-#'     - `score`: The platform's score for that issue (numeric, summing to 100)
+#'     - `score`: The platform's score for that issue (numeric, summing to 1)
 #' @export
 
 process_platform_emphasis <- function(tibble, cleaning = TRUE) {
+  # Check that the inputs are correctly structured
+  validator_tibble <- validation(tibble, "emphasis")
+  if (nrow(validator_tibble) > 0) {
+    print(validator_tibble)
+    rlang::abort("The tibble is incorrectly structured.", tibble = validator_tibble)
+  }
+  if (!is.logical(cleaning)) rlang::abort("The cleaning input must be a boolean.")
+  tibble <- tibble::as_tibble(tibble)
+
   # Ensure python tools work
   try(spacyr::spacy_finalize(), silent = TRUE)
   spacyr_test <- tryCatch(

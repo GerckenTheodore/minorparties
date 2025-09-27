@@ -6,10 +6,10 @@
 #'     - `sentence`: The sentence (character)
 #'     - `scores`: A tibble with the sentence's emphasis scores, containing:
 #'         - `issue`: The issue's name (character) (every sentence in every platform must have the same issue-areas)
-#'         - `score`: The sentence's score for that issue (numeric, summing to 100)
+#'         - `score`: The sentence's score for that issue (numeric, summing to 1)
 #'  - `overall_emphasis_scores`: A tibble with the platform's overall emphasis scores, containing:
 #'       - `issue`: The issue's name (character)
-#'       - `score`: The platform's score for that issue (numeric, summing to 100)
+#'       - `score`: The platform's score for that issue (numeric, summing to 1)
 #'  - `position_scores`: A tibble with the platform's position-score (and standard error) for each issue-area (flagged if the Wordfish model did not converge)
 #'  - `minor_party`: Whether the party is a minor party (boolean)
 #'  - `major_party_platforms`: Only needed for minor parties. A list of lists with "before", "after", and "weight" entries, containing the name of a major party's platform before or after the minor party and the weight that should be given to the party's changes in IScore calculations.
@@ -17,17 +17,18 @@
 #' @param core_threshold The minimum score a minor party must have for an issue-area for it to be considered a core issue (0.05 by default)
 #' @param collapse Whether to remove all columns required for this function besides `party` from the final return (FALSE by default).
 #' @return The same tibble, only containing the minor parties, with the additional list-column `scores` containing `ie_score`, `ie_score_interpreted`, and `ip_score`.
+#' @export
 
 calculate_iscores <- function(tibble, p_threshold = 0.05, core_threshold = 0.05, collapse = FALSE) {
-  # Check that minor parties have valid major parties
-  minor_parties <- tibble |>
-    dplyr::filter(minor_party)
-
-  if (!all(purrr::map_lgl(minor_parties$major_party_platforms, function(platforms) {
-    all(purrr::map_lgl(platforms, function(party) is.numeric(party$weight) && all(c(party$before, party$after) %in% tibble$party)))
-  }))) {
-    stop("All minor parties must have a valid major party name in the before and after items of the 'major_party_platforms' column, and a numeric weight.")
+  validator_tibble <- validation(tibble, "iscores")
+  if (nrow(validator_tibble) > 0) {
+    print(validator_tibble)
+    rlang::abort("The tibble is incorrectly structured.", tibble = validator_tibble)
   }
+  if (!is.numeric(p_threshold) || p_threshold < 0 || p_threshold > 1) rlang::abort("The p_threshold must be a number between 0 and 1.")
+  if (!is.numeric(core_threshold) || core_threshold < 0 || core_threshold > 1) rlang::abort("The core_threshold must be a number between 0 and 1.")
+  if (!is.logical(collapse)) rlang::abort("The collapse input must be a boolean.")
+  tibble <- tibble::as_tibble(tibble)
 
   # Pull the major party data relevant for each minor party
   lookup_table <- tibble |>

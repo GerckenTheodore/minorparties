@@ -13,7 +13,7 @@ process_platform_position(tibble, inclusion_threshold = 0.2)
    - `sentence`: The sentence (character)
    - `scores`: A tibble with the sentence's emphasis scores, containing:
        - `issue`: The issue's name (character) (every sentence in every platform must have the same issue-areas)
-       - `score`: The sentence's score for that issue (numeric, summing to 100)}
+       - `score`: The sentence's score for that issue (numeric, summing to 1)}
 
 \item{inclusion_threshold}{The minimum score a sentence must have for an issue-area to be included in the overall emphasis scores (0.2 by default)}
 }

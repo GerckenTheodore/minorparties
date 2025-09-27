@@ -18,10 +18,10 @@ calculate_iscores(
    - `sentence`: The sentence (character)
    - `scores`: A tibble with the sentence's emphasis scores, containing:
        - `issue`: The issue's name (character) (every sentence in every platform must have the same issue-areas)
-       - `score`: The sentence's score for that issue (numeric, summing to 100)
+       - `score`: The sentence's score for that issue (numeric, summing to 1)
 - `overall_emphasis_scores`: A tibble with the platform's overall emphasis scores, containing:
      - `issue`: The issue's name (character)
-     - `score`: The platform's score for that issue (numeric, summing to 100)
+     - `score`: The platform's score for that issue (numeric, summing to 1)
 - `position_scores`: A tibble with the platform's position-score (and standard error) for each issue-area (flagged if the Wordfish model did not converge)
 - `minor_party`: Whether the party is a minor party (boolean)
 - `major_party_platforms`: Only needed for minor parties. A list of lists with "before", "after", and "weight" entries, containing the name of a major party's platform before or after the minor party and the weight that should be given to the party's changes in IScore calculations.}
