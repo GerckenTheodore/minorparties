@@ -17,10 +17,12 @@
 #' @param core_threshold The minimum score a minor party must have for an issue-area for it to be considered a core issue (0.05 by default).
 #' @param exclude_nonconvergence Whether to treat issues where the Wordfish model did not converge as NA when calculating Ip Scores (TRUE by default).
 #' @param collapse Whether to remove all columns required for this function besides `party` from the final return (FALSE by default).
+#' @param calculation_tables Whether to return the tables used to calculate I-scores in a `tables` list-column.
 #' @return The same tibble, only containing the minor parties, with the additional list-column `scores` containing `ie_score`, `ie_score_interpreted`, and `ip_score`.
 #' @export
 
-calculate_iscores <- function(tibble, p_threshold = 0.05, core_threshold = 0.05, exclude_nonconvergence = TRUE, collapse = FALSE) {
+calculate_iscores <- function(tibble, p_threshold = 0.05, core_threshold = 0.05, exclude_nonconvergence = TRUE, collapse = FALSE, calculation_tables = FALSE) {
+  # Check that the inputs are correctly structured
   validator_tibble <- validation(tibble, "iscores")
   if (nrow(validator_tibble) > 0) {
     print(validator_tibble)
@@ -30,6 +32,7 @@ calculate_iscores <- function(tibble, p_threshold = 0.05, core_threshold = 0.05,
   if (!is.numeric(core_threshold) || core_threshold < 0 || core_threshold > 1) rlang::abort("The core_threshold must be a number between 0 and 1.")
   if (!is.logical(collapse)) rlang::abort("The collapse input must be a boolean.")
   if (!is.logical(exclude_nonconvergence)) rlang::abort("The exclude_nonconvergence input must be a boolean.")
+  if (!is.logical(calculation_tables)) rlang::abort("The calculation_tables input must be a boolean.")
   tibble <- tibble::as_tibble(tibble)
 
   # Pull the major party data relevant for each minor party
@@ -142,7 +145,7 @@ calculate_iscores <- function(tibble, p_threshold = 0.05, core_threshold = 0.05,
         weight <- major$weight
 
         if (exclude_nonconvergence) {
-          convergence <- sort_scores(major$before$position_scores, "convergence") & sort_scores(major$after$position_scores, "convergence")
+          convergence <- sort_scores(list(major$before$position_scores), "convergence") & sort_scores(list(major$after$position_scores, "convergence"))
           before_scores[!convergence] <- NA
           before_se[!convergence] <- NA
         }
