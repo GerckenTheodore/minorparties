@@ -42,7 +42,7 @@ ie_score_sum <- function(ie_score_tibble, party_row, top_issues, p_threshold) {
 
 ip_score_sum <- function(ip_score_tibble, party_row, top_issues, p_threshold) {
   calculation_tibble <- party_row |>
-    purrr::pluck("position_scores", 1) |>
+    purrr::pluck("overall_emphasis_scores", 1) |>
     dplyr::filter(issue %in% top_issues) |>
     dplyr::arrange(factor(issue, levels = top_issues)) |>
     dplyr::mutate(change_score = purrr::map_dbl(top_issues, function(issue) {

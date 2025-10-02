@@ -1,4 +1,4 @@
-#' Function that takes platforms, and calculates the minor parties' I-Scores
+#' Function that calculates minor parties' I-Scores
 #'
 #' @param tibble Tibble with one row per platform, containing, at minimum (this function is designed to work with the output of `process_platform_position()`):
 #'  - `party`: The party's name (character) (this column must be unique for each platform)
@@ -16,12 +16,11 @@
 #' @param p_threshold The maximum p-value for a relationship to be considered significant (0.05 by default).
 #' @param core_threshold The minimum score a minor party must have for an issue-area for it to be considered a core issue (0.05 by default).
 #' @param exclude_nonconvergence Whether to treat issues where the Wordfish model did not converge as NA when calculating Ip Scores (TRUE by default).
-#' @param collapse Whether to remove all columns required for this function besides `party` from the final return (FALSE by default).
 #' @param calculation_tables Whether to return the tables used to calculate I-scores.
-#' @return The same tibble, only containing the minor parties, with the additional list-column `scores` containing `ie_score`, `ie_score_interpreted`, and `ip_score`. If `calculation_tables` is TRUE, `scores` will also include `ie_score_table` and `ip_score_table`
+#' @return A tibble, containing the minor parties, with the list-column `scores` containing `ie_score`, `ie_score_interpreted`, and `ip_score`. If `calculation_tables` is TRUE, `scores` will also include `ie_score_table` and `ip_score_table`
 #' @export
 
-calculate_iscores <- function(tibble, p_threshold = 0.05, core_threshold = 0.05, exclude_nonconvergence = TRUE, collapse = FALSE, calculation_tables = FALSE) {
+calculate_iscores <- function(tibble, p_threshold = 0.05, core_threshold = 0.05, exclude_nonconvergence = TRUE, calculation_tables = FALSE) {
   # Check that the inputs are correctly structured
   validator_tibble <- validation(tibble, "iscores")
   if (nrow(validator_tibble) > 0) {
@@ -30,7 +29,6 @@ calculate_iscores <- function(tibble, p_threshold = 0.05, core_threshold = 0.05,
   }
   if (!is.numeric(p_threshold) || p_threshold < 0 || p_threshold > 1) rlang::abort("The p_threshold must be a number between 0 and 1.")
   if (!is.numeric(core_threshold) || core_threshold < 0 || core_threshold > 1) rlang::abort("The core_threshold must be a number between 0 and 1.")
-  if (!is.logical(collapse)) rlang::abort("The collapse input must be a boolean.")
   if (!is.logical(exclude_nonconvergence)) rlang::abort("The exclude_nonconvergence input must be a boolean.")
   if (!is.logical(calculation_tables)) rlang::abort("The calculation_tables input must be a boolean.")
   tibble <- tibble::as_tibble(tibble)
@@ -48,7 +46,7 @@ calculate_iscores <- function(tibble, p_threshold = 0.05, core_threshold = 0.05,
     }))
 
   # Calculate I Scores for each minor party
-  minor_parties <- minor_parties |>
+  minor_parties |>
     dplyr::mutate(scores = purrr::map(minor_parties$party, function(party_v) {
       party_row <- dplyr::filter(minor_parties, party == party_v)
       major_info <- party_row$major_party_info[[1]]
@@ -146,11 +144,6 @@ calculate_iscores <- function(tibble, p_threshold = 0.05, core_threshold = 0.05,
         return_list$ip_score_tibble <- ip_score_tibble
       }
       return_list
-    }))
-
-  if (collapse) {
-    minor_parties |> dplyr::select(-major_party_info, -sentence_emphasis_scores, -overall_emphasis_scores, -position_scores, -minor_party, -major_party_platforms)
-  } else {
-    minor_parties
-  }
+    })) |>
+    dplyr::select(party, scores)
 }
