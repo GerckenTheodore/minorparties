@@ -18,7 +18,6 @@ process_platform_emphasis <- function(tibble, cleaning = TRUE) {
   # Check that the inputs are correctly structured
   validator_tibble <- validation(tibble, "emphasis")
   if (nrow(validator_tibble) > 0) {
-    print(validator_tibble)
     rlang::abort("The tibble is incorrectly structured.", tibble = validator_tibble)
   }
   if (!is.logical(cleaning)) rlang::abort("The cleaning input must be a boolean.")
@@ -43,7 +42,7 @@ process_platform_emphasis <- function(tibble, cleaning = TRUE) {
   if (!spacyr_test || !manifestoBERTA_test) stop("Python environment is not properly configured. Please run `configure_python()` to set it up.")
 
   # Clean platforms with basic cleaning operations if requested
-  if (isTRUE(cleaning)) {
+  if (cleaning) {
     tibble <- tibble |>
       dplyr::mutate(
         text = text |>

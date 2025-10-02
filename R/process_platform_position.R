@@ -15,13 +15,13 @@ process_platform_position <- function(tibble, inclusion_threshold = 0.2) {
   # Check that the inputs are correctly structured
   validator_tibble <- validation(tibble, "position")
   if (nrow(validator_tibble) > 0) {
-    print(validator_tibble)
     rlang::abort("The tibble is incorrectly structured.", tibble = validator_tibble)
   }
   if (!is.numeric(inclusion_threshold) || inclusion_threshold < 0 || inclusion_threshold > 1) rlang::abort("The inclusion_threshold must be a number between 0 and 1.")
   tibble <- tibble::as_tibble(tibble)
 
   # Pull the sentences that correspond to each issue
+  issues <- tibble$sentence_emphasis_scores[[1]][[1]]$scores[[1]]$issue
   labeled_sentences <- tibble |>
     tidyr::unnest(sentence_emphasis_scores) |>
     tidyr::unnest(sentence_emphasis_scores) |>

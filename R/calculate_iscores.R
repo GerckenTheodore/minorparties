@@ -17,8 +17,8 @@
 #' @param core_threshold The minimum score a minor party must have for an issue-area for it to be considered a core issue (0.05 by default).
 #' @param exclude_nonconvergence Whether to treat issues where the Wordfish model did not converge as NA when calculating Ip Scores (TRUE by default).
 #' @param collapse Whether to remove all columns required for this function besides `party` from the final return (FALSE by default).
-#' @param calculation_tables Whether to return the tables used to calculate I-scores in a `tables` list-column.
-#' @return The same tibble, only containing the minor parties, with the additional list-column `scores` containing `ie_score`, `ie_score_interpreted`, and `ip_score`.
+#' @param calculation_tables Whether to return the tables used to calculate I-scores.
+#' @return The same tibble, only containing the minor parties, with the additional list-column `scores` containing `ie_score`, `ie_score_interpreted`, and `ip_score`. If `calculation_tables` is TRUE, `scores` will also include `ie_score_table` and `ip_score_table`
 #' @export
 
 calculate_iscores <- function(tibble, p_threshold = 0.05, core_threshold = 0.05, exclude_nonconvergence = TRUE, collapse = FALSE, calculation_tables = FALSE) {
@@ -39,8 +39,9 @@ calculate_iscores <- function(tibble, p_threshold = 0.05, core_threshold = 0.05,
   lookup_table <- tibble |>
     dplyr::select(party, sentence_emphasis_scores, overall_emphasis_scores, position_scores) |>
     split(tibble$party)
-  minor_parties <- minor_parties |>
-    dplyr::mutate(major_party_info = purrr::map2(minor_parties$party, minor_parties$major_party_platforms, function(party, platforms) {
+  minor_parties <- tibble |>
+    dplyr::filter(minor_party) |>
+    dplyr::mutate(major_party_info = purrr::map(major_party_platforms, function(platforms) {
       purrr::map(platforms, function(major) {
         list(before = lookup_table[[major$before]], after = lookup_table[[major$after]], weight = major$weight)
       })
@@ -57,7 +58,6 @@ calculate_iscores <- function(tibble, p_threshold = 0.05, core_threshold = 0.05,
         dplyr::filter(score > core_threshold) |>
         dplyr::arrange(issue) |>
         dplyr::pull(issue)
-
       top_issues <- party_row |>
         purrr::pluck("position_scores", 1) |>
         dplyr::filter(issue %in% top_issues & !is.na(score)) |>
@@ -73,7 +73,7 @@ calculate_iscores <- function(tibble, p_threshold = 0.05, core_threshold = 0.05,
 
       # Ie Scores
       pull_sentence_scores <- function(sentence_emphasis_scores, issue_v) {
-        map_dbl(sentence_emphasis_scores[[1]], function(sentence) {
+        purrr::map_dbl(sentence_emphasis_scores[[1]], function(sentence) {
           matching_row <- dplyr::filter(sentence$scores[[1]], issue == issue_v)
           matching_row$score
         })
@@ -84,7 +84,7 @@ calculate_iscores <- function(tibble, p_threshold = 0.05, core_threshold = 0.05,
         after_scores <- sort_scores(major$after$overall_emphasis_scores)
         change <- after_scores - before_scores
 
-        statistical_significance <- purrr::map(top_issues, function(issue) {
+        statistical_significance <- purrr::map_dbl(top_issues, function(issue) {
           before <- pull_sentence_scores(major$before$sentence_emphasis_scores, issue)
           after <- pull_sentence_scores(major$after$sentence_emphasis_scores, issue)
           wilcox.test(before, after, alternative = "two.sided", exact = FALSE)$p.value
@@ -99,33 +99,7 @@ calculate_iscores <- function(tibble, p_threshold = 0.05, core_threshold = 0.05,
           dplyr::select(party_number, name, weight, dplyr::everything())
       })
 
-      issue_calculation_tibble <- party_row |>
-        purrr::pluck("overall_emphasis_scores", 1) |>
-        dplyr::filter(issue %in% top_issues) |>
-        dplyr::mutate(change_score = purrr::map(top_issues, function(issue) {
-          party_scores <- purrr::map_dfr(unique(ie_score_tibble$party_number), function(number) {
-            pull_number <- function(type, to_pull) {
-              dplyr::filter(ie_score_tibble, party_number == number & name == type) |>
-                purrr::pluck(to_pull, 1)
-            }
-
-            tibble::tibble(
-              party_number = number,
-              change = ifelse(pull_number("significance", issue) <= p_threshold, pull_number("change", issue), 0),
-              before = pull_number("before", issue),
-              weight = pull_number("before", "weight")
-            )
-          })
-
-          weighted_change <- sum(party_scores$change * party_scores$weight) / sum(party_scores$weight)
-          weighted_before <- sum(party_scores$before * party_scores$weight) / sum(party_scores$weight)
-
-          list(weighted_change = weighted_change, weighted_before = weighted_before)
-        })) |>
-        tidyr::unnest_wider(change_score)
-
-      ie_score <- sum(issue_calculation_tibble$score * issue_calculation_tibble$weighted_change) / sum(issue_calculation_tibble$score)
-      ie_score_interpreted <- ie_score / (sum(issue_calculation_tibble$score * issue_calculation_tibble$weighted_before) / sum(issue_calculation_tibble$score))
+      ie_score <- ie_score_sum(ie_score_tibble, party_row, top_issues, p_threshold)
 
       # Ip Scores
       minor_position_scores <- party_row |>
@@ -145,7 +119,7 @@ calculate_iscores <- function(tibble, p_threshold = 0.05, core_threshold = 0.05,
         weight <- major$weight
 
         if (exclude_nonconvergence) {
-          convergence <- sort_scores(list(major$before$position_scores), "convergence") & sort_scores(list(major$after$position_scores, "convergence"))
+          convergence <- sort_scores(major$before$position_scores, "convergence") & sort_scores(major$after$position_scores, "convergence")
           before_scores[!convergence] <- NA
           before_se[!convergence] <- NA
         }
@@ -163,41 +137,19 @@ calculate_iscores <- function(tibble, p_threshold = 0.05, core_threshold = 0.05,
           dplyr::select(party_number, name, weight, dplyr::everything())
       })
 
-      issue_calculation_tibble <- party_row |>
-        purrr::pluck("position_scores", 1) |>
-        dplyr::filter(issue %in% top_issues) |>
-        dplyr::arrange(factor(issue, levels = top_issues)) |>
-        dplyr::mutate(change_score = purrr::map(top_issues, function(issue) {
-          party_scores <- purrr::map_dfr(unique(ie_score_tibble$party_number), function(number) {
-            pull_number <- function(type, to_pull) {
-              dplyr::filter(ip_score_tibble, party_number == number & name == type) |>
-                purrr::pluck(to_pull, 1)
-            }
-
-            tibble::tibble(
-              change = ifelse(pull_number("significance", issue) <= p_threshold, pull_number("change", issue), 0),
-              weight = pull_number("before", "weight")
-            )
-          })
-
-          list(change = max(party_scores$change))
-        })) |>
-        tidyr::unnest_wider(change_score)
-
-      top_issue_weights <- party_row |>
-        purrr::pluck("overall_emphasis_scores", 1) |>
-        dplyr::filter(issue %in% top_issues) |>
-        dplyr::arrange(factor(issue, levels = top_issues)) |>
-        dplyr::pull(score)
-
-      ip_score <- sum(top_issue_weights * issue_calculation_tibble$change) / sum(issue_calculation_tibble$score)
+      ip_score <- ip_score_sum(ip_score_tibble, party_row, top_issues, p_threshold)
 
       # Return Scores
-      list(ie_score = ie_score, ie_score_interpreted = ie_score_interpreted, ip_score = ip_score)
+      return_list <- list(ie_score = ie_score$ie_score, ie_score_interpreted = ie_score$ie_score_interpreted, ip_score = ip_score)
+      if (calculation_tables) {
+        return_list$ie_score_tibble <- ie_score_tibble
+        return_list$ip_score_tibble <- ip_score_tibble
+      }
+      return_list
     }))
 
   if (collapse) {
-    minor_parties |> dplyr::select(-sentence_emphasis_scores, -overall_emphasis_scores, -position_scores, -minor_party, -major_party_platforms)
+    minor_parties |> dplyr::select(-major_party_info, -sentence_emphasis_scores, -overall_emphasis_scores, -position_scores, -minor_party, -major_party_platforms)
   } else {
     minor_parties
   }

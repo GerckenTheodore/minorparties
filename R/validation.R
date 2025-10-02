@@ -1,6 +1,4 @@
 validation <- function(tibble, set) {
-  tryCatch(issues <- tibble$sentence_emphasis_scores[[1]][[1]]$scores[[1]]$issue, error = function(e) c())
-
   error_wrapper <- function(logic, columns = c()) {
     tryCatch(
       {
@@ -12,6 +10,8 @@ validation <- function(tibble, set) {
       error = function(e) FALSE
     )
   }
+
+  error_wrapper(issues <- tibble$sentence_emphasis_scores[[1]][[1]]$scores[[1]]$issue, columns = c("sentence_emphasis_scores"))
 
   tibble::tibble(
     error = c(
@@ -33,7 +33,7 @@ validation <- function(tibble, set) {
       "Every `scores` tibble in each sentence list-item in each platform must contain an `issue` column, with the same issue-areas as every other scores data frame, and a `score` column, which sums to 1",
       "Every platform's `overall_emphasis_scores` column must contain an `issue` column, with the same issue-areas as the `sentence_emphasis_scores` data frames, and a `score` column, which sums to 1",
       "Every platform's `position_scores` column must contain a tibble with `issue`, `score`, `se`, and `convergence` columns. The issue column must contain the same issue-areas as the `sentence_emphasis_scores` data frames. The `score` and `se` columns must be numeric, and the `convergence` column must be boolean",
-      "Every minor party's `major_party_platforms` column must contain a list for each major party with `before`, `after`, and `weight` entries. The `before` and `after` entries must be character vectors with the name of a major party's platform, contained in the tibble, and the `weight` entry must be numeric",
+      "Every minor party's `major_party_platforms` column must contain a list for each major party with `before`, `after`, and `weight` entries. The `before` and `after` entries must be character vectors with the name of a major party's platform, contained in the tibble, and the `weight` entry must be numeric and positive",
       "Every party's `scores` column must contain `ie_score`, `ie_score_interpreted`, and `ip_score` numeric columns."
     ),
     passing = list(
@@ -70,7 +70,7 @@ validation <- function(tibble, set) {
       }), columns = ("position_scores")),
       error_wrapper(purrr::map2_lgl(tibble$major_party_platforms, tibble$minor_party, function(platforms, minor_party) {
         !minor_party || (length(platforms) > 0 & all(purrr::map_lgl(platforms, function(party) {
-          is.numeric(party$weight) && all(c(party$before, party$after) %in% tibble$party)
+          is.numeric(party$weight) && party$weight > 0 && all(c(party$before, party$after) %in% tibble$party)
         })))
       }), columns = c("major_party_platforms", "minor_party")),
       error_wrapper(purrr::map_lgl(tibble$scores, function(scores) {
