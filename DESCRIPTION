@@ -25,6 +25,7 @@ Imports:
     quanteda.textmodels,
     reticulate,
     spacyr,
+    stats,
     stringi,
     stringr,
     tibble,

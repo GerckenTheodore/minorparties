@@ -16,11 +16,12 @@
 #' @param p_threshold The maximum p-value for a relationship to be considered significant (0.05 by default).
 #' @param core_threshold The minimum score a minor party must have for an issue-area for it to be considered a core issue (0.05 by default).
 #' @param exclude_nonconvergence Whether to treat issues where the Wordfish model did not converge as NA when calculating Ip Scores (TRUE by default).
+#' @param adjust_p_values Whether to adjust p-values to account for the large number of comparisons (TRUE by default).
 #' @param calculation_tables Whether to return the tables used to calculate I-scores.
 #' @return A tibble, containing the minor parties, with the list-column `scores` containing `ie_score`, `ie_score_interpreted`, and `ip_score`. If `calculation_tables` is TRUE, `scores` will also include `ie_score_table` and `ip_score_table`
 #' @export
 
-calculate_iscores <- function(tibble, p_threshold = 0.05, core_threshold = 0.05, exclude_nonconvergence = TRUE, calculation_tables = FALSE) {
+calculate_iscores <- function(tibble, p_threshold = 0.05, core_threshold = 0.05, exclude_nonconvergence = TRUE, adjust_p_values = TRUE, calculation_tables = FALSE) {
   # Check that the inputs are correctly structured
   validator_tibble <- validation(tibble, "iscores")
   if (nrow(validator_tibble) > 0) {
@@ -30,6 +31,7 @@ calculate_iscores <- function(tibble, p_threshold = 0.05, core_threshold = 0.05,
   if (!is.numeric(p_threshold) || p_threshold < 0 || p_threshold > 1) rlang::abort("The p_threshold must be a number between 0 and 1.")
   if (!is.numeric(core_threshold) || core_threshold < 0 || core_threshold > 1) rlang::abort("The core_threshold must be a number between 0 and 1.")
   if (!is.logical(exclude_nonconvergence)) rlang::abort("The exclude_nonconvergence input must be a boolean.")
+  if (!is.logical(adjust_p_values)) rlang::abort("The adjust_p_values input must be a boolean.")
   if (!is.logical(calculation_tables)) rlang::abort("The calculation_tables input must be a boolean.")
   tibble <- tibble::as_tibble(tibble)
 
@@ -45,9 +47,9 @@ calculate_iscores <- function(tibble, p_threshold = 0.05, core_threshold = 0.05,
       })
     }))
 
-  # Calculate I Scores for each minor party
-  minor_parties |>
-    dplyr::mutate(scores = purrr::map(minor_parties$party, function(party_v) {
+  # Construct calculation tibbles for each minor party
+  minor_parties <- minor_parties |>
+    dplyr::mutate(calculation_tables = purrr::map(minor_parties$party, function(party_v) {
       party_row <- dplyr::filter(minor_parties, party == party_v)
       major_info <- party_row$major_party_info[[1]]
 
@@ -97,8 +99,6 @@ calculate_iscores <- function(tibble, p_threshold = 0.05, core_threshold = 0.05,
           dplyr::select(party_number, name, weight, dplyr::everything())
       })
 
-      ie_score <- ie_score_sum(ie_score_tibble, party_row, top_issues, p_threshold)
-
       # Ip Scores
       minor_position_scores <- party_row |>
         purrr::pluck("position_scores", 1) |>
@@ -135,15 +135,56 @@ calculate_iscores <- function(tibble, p_threshold = 0.05, core_threshold = 0.05,
           dplyr::select(party_number, name, weight, dplyr::everything())
       })
 
-      ip_score <- ip_score_sum(ip_score_tibble, party_row, top_issues, p_threshold)
+      list(ie_score_tibble = ie_score_tibble, ip_score_tibble = ip_score_tibble)
+    }))
 
-      # Return Scores
-      return_list <- list(ie_score = ie_score$ie_score, ie_score_interpreted = ie_score$ie_score_interpreted, ip_score = ip_score)
-      if (calculation_tables) {
-        return_list$ie_score_tibble <- ie_score_tibble
-        return_list$ip_score_tibble <- ip_score_tibble
-      }
-      return_list
+  # Adjust calculation tibbles to rebalance IScores
+  if (adjust_p_values) {
+    p_values <- minor_parties |>
+      dplyr::select(party, calculation_tables) |>
+      tidyr::unnest_longer(calculation_tables, indices_to = "type") |>
+      tidyr::unnest(calculation_tables, names_sep = "_") |>
+      tidyr::pivot_longer(cols = -c(party, calculation_tables_party, calculation_tables_party_number, calculation_tables_name, calculation_tables_weight, type), names_to = "issue", values_to = "p_value") |>
+      dplyr::filter(!is.na(p_value) & calculation_tables_name == "significance") |>
+      dplyr::mutate(adjusted_p_value = stats::p.adjust(p_value, method = "BH")) |>
+      dplyr::select(party, type, calculation_tables_party_number, issue, adjusted_p_value)
+
+    minor_parties <- minor_parties |>
+      dplyr::mutate(calculation_tables = purrr::map2(calculation_tables, party, function(tables, party_v) {
+        purrr::imap(tables, function(table, name) {
+          new_p_values <- dplyr::filter(p_values, party == party_v & type == name) |>
+            dplyr::mutate(issue = stringr::str_replace(issue, "^calculation_tables_", ""), party_number = calculation_tables_party_number) |>
+            dplyr::select(-party, -type, -calculation_tables_party_number) |>
+            tidyr::pivot_wider(names_from = issue, values_from = adjusted_p_value, values_fill = NA_real_) |>
+            dplyr::mutate(name = "significance", party = NA_character_)
+
+          table |>
+            dplyr::filter(name != "significance") |>
+            dplyr::bind_rows(new_p_values) |>
+            dplyr::group_by(party_number) |>
+            dplyr::mutate(weight = ifelse(is.na(weight), dplyr::first(na.omit(weight)), weight)) |>
+            dplyr::ungroup()
+        })
+      }))
+  }
+
+  # Calculate IScores
+  minor_parties <- minor_parties |>
+    dplyr::mutate(scores = purrr::map2(party, calculation_tables, function(party_v, tables) {
+      party_row <- dplyr::filter(minor_parties, party == party_v)
+      top_issues <- tables$ie_score_tibble |>
+        dplyr::select(-party_number, -name, -weight, -party) |>
+        colnames()
+
+      ie_scores <- ie_score_sum(tables$ie_score_tibble, party_row, top_issues, p_threshold)
+      ip_score <- ip_score_sum(tables$ip_score_tibble, party_row, top_issues, p_threshold)
+
+      list(ie_score = ie_scores$ie_score, ie_score_interpreted = ie_scores$ie_score_interpreted, ip_score = ip_score)
     })) |>
-    dplyr::select(party, scores)
+    dplyr::select(party, scores, calculation_tables)
+
+  if (!calculation_tables) {
+    minor_parties <- dplyr::select(minor_parties, -calculation_tables)
+  }
+  minor_parties
 }
