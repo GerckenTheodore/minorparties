@@ -17,11 +17,13 @@
 #' @param core_threshold The minimum score a minor party must have for an issue-area for it to be considered a core issue (0.05 by default).
 #' @param exclude_nonconvergence Whether to treat issues where the Wordfish model did not converge as NA when calculating Ip Scores (TRUE by default).
 #' @param adjust_p_values Whether to adjust p-values to account for the large number of comparisons (TRUE by default).
+#' @param confidence_intervals Whether to calculate confidence intervals for the I-Scores (FALSE by default).
+#' @param confidence_n The number of bootstrap samples to take for each minor party if `confidence_intervals` is TRUE (1000 by default).
 #' @param calculation_tables Whether to return the tables used to calculate I-scores.
-#' @return A tibble, containing the minor parties, with the list-column `scores` containing `ie_score`, `ie_score_interpreted`, and `ip_score`. If `calculation_tables` is TRUE, `scores` will also include `ie_score_table` and `ip_score_table`
+#' @return A tibble, containing the minor parties, with the list-column `scores` containing `ie_score`, `ie_score_interpreted`, and `ip_score`. If `calculation_tables` is TRUE, there will be a `calculation_tables` list-column including `ie_score_table` and `ip_score_table`. If `confidence_intervals` is TRUE, there will be a `confidence_intervals` column of tibbles containing the upper and lower bounds of the 95% confidence interval for the party's IScores.
 #' @export
 
-calculate_iscores <- function(tibble, p_threshold = 0.05, core_threshold = 0.05, exclude_nonconvergence = TRUE, adjust_p_values = TRUE, calculation_tables = FALSE) {
+calculate_iscores <- function(tibble, p_threshold = 0.05, core_threshold = 0.05, exclude_nonconvergence = TRUE, adjust_p_values = TRUE, confidence_intervals = FALSE, confidence_n = 1000, calculation_tables = FALSE) {
   # Check that the inputs are correctly structured
   validator_tibble <- validation(tibble, "iscores")
   if (nrow(validator_tibble) > 0) {
@@ -32,8 +34,11 @@ calculate_iscores <- function(tibble, p_threshold = 0.05, core_threshold = 0.05,
   if (!is.numeric(core_threshold) || core_threshold < 0 || core_threshold > 1) rlang::abort("The core_threshold must be a number between 0 and 1.")
   if (!is.logical(exclude_nonconvergence)) rlang::abort("The exclude_nonconvergence input must be a boolean.")
   if (!is.logical(adjust_p_values)) rlang::abort("The adjust_p_values input must be a boolean.")
+  if (!is.logical(confidence_intervals)) rlang::abort("The confidence_intervals input must be a boolean.")
+  if (!is.numeric(n) || n <= 1) rlang::abort("The confidence_n input must be a whole number greater than 1.")
   if (!is.logical(calculation_tables)) rlang::abort("The calculation_tables input must be a boolean.")
   tibble <- tibble::as_tibble(tibble)
+  confidence_n <- round(confidence_n)
 
   # Pull the major party data relevant for each minor party
   lookup_table <- tibble |>
@@ -180,11 +185,57 @@ calculate_iscores <- function(tibble, p_threshold = 0.05, core_threshold = 0.05,
       ip_score <- ip_score_sum(tables$ip_score_tibble, party_row, top_issues, p_threshold)
 
       list(ie_score = ie_scores$ie_score, ie_score_interpreted = ie_scores$ie_score_interpreted, ip_score = ip_score)
-    })) |>
-    dplyr::select(party, scores, calculation_tables)
+    }))
 
+  # Create Confidence Intervals
+  if (confidence_intervals) {
+    minor_parties <- minor_parties |>
+      dplyr::mutate(confidence_intervals = purrr::map2(party, calculation_tables, function(party_v, tables) {
+        party_row <- dplyr::filter(tibble, party == party_v)
+        top_issues <- tables$ie_score_tibble |>
+          dplyr::select(-party_number, -name, -weight, -party) |>
+          colnames()
+        top_issue_tibble <- party_row |>
+          purrr::pluck("overall_emphasis_scores", 1) |>
+          dplyr::filter(issue %in% top_issues)
+
+        scores <- purrr::map_dfr(1:confidence_n, function(i) {
+          sampled_issues <- sample(top_issues, size = length(top_issues), replace = TRUE)
+          sampled_top_issues <- tibble::tibble(issue = sampled_issues) |>
+            dplyr::count(issue, name = "frequency") |>
+            dplyr::right_join(top_issue_tibble, by = "issue") |>
+            dplyr::mutate(frequency = tidyr::replace_na(frequency, 0)) |>
+            dplyr::mutate(weighted = score * frequency) |>
+            dplyr::mutate(weighted_score = (weighted / sum(weighted)) * sum(score)) |>
+            dplyr::mutate(score = weighted_score) |>
+            dplyr::select(issue, score) |>
+            dplyr::arrange(factor(issue, levels = top_issues))
+          sampled_party_row <- party_row
+          sampled_party_row$overall_emphasis_scores[[1]] <- sampled_top_issues
+
+          ie_scores <- ie_score_sum(tables$ie_score_tibble, party_row = sampled_party_row, top_issues, p_threshold)
+          ip_scores <- ip_score_sum(tables$ip_score_tibble, party_row = sampled_party_row, top_issues, p_threshold)
+
+          tibble::tibble(
+            ie_score = ie_scores$ie_score,
+            ie_score_interpreted = ie_scores$ie_score_interpreted,
+            ip_score = ip_scores
+          )
+        })
+
+        tibble::tibble(
+          side = c("lower", "upper"),
+          ie_score = c(quantile(scores$ie_score, probs = c(0.025, 0.975))),
+          ie_score_interpreted = c(quantile(scores$ie_score_interpreted, probs = c(0.025, 0.975))),
+          ip_score = c(quantile(scores$ip_score, probs = c(0.025, 0.975)))
+        )
+      }))
+  }
+
+  # Return Tibble
   if (!calculation_tables) {
     minor_parties <- dplyr::select(minor_parties, -calculation_tables)
   }
-  minor_parties
+  minor_parties |>
+    dplyr::select(party, scores, dplyr::any_of(c("calculation_tables", "confidence_intervals")))
 }

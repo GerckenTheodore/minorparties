@@ -2,14 +2,16 @@
 % Please edit documentation in R/calculate_iscores.R
 \name{calculate_iscores}
 \alias{calculate_iscores}
-\title{Function that takes platforms, and calculates the minor parties' I-Scores}
+\title{Function that calculates minor parties' I-Scores}
 \usage{
 calculate_iscores(
   tibble,
   p_threshold = 0.05,
   core_threshold = 0.05,
   exclude_nonconvergence = TRUE,
-  collapse = FALSE,
+  adjust_p_values = TRUE,
+  confidence_intervals = FALSE,
+  confidence_n = 1000,
   calculation_tables = FALSE
 )
 }
@@ -34,13 +36,17 @@ calculate_iscores(
 
 \item{exclude_nonconvergence}{Whether to treat issues where the Wordfish model did not converge as NA when calculating Ip Scores (TRUE by default).}
 
-\item{collapse}{Whether to remove all columns required for this function besides `party` from the final return (FALSE by default).}
+\item{adjust_p_values}{Whether to adjust p-values to account for the large number of comparisons (TRUE by default).}
 
-\item{calculation_tables}{Whether to return the tables used to calculate I-scores in a `tables` list-column.}
+\item{confidence_intervals}{Whether to calculate confidence intervals for the I-Scores (FALSE by default).}
+
+\item{confidence_n}{The number of bootstrap samples to take for each minor party if `confidence_intervals` is TRUE (1000 by default).}
+
+\item{calculation_tables}{Whether to return the tables used to calculate I-scores.}
 }
 \value{
-The same tibble, only containing the minor parties, with the additional list-column `scores` containing `ie_score`, `ie_score_interpreted`, and `ip_score`.
+A tibble, containing the minor parties, with the list-column `scores` containing `ie_score`, `ie_score_interpreted`, and `ip_score`. If `calculation_tables` is TRUE, there will be a `calculation_tables` list-column including `ie_score_table` and `ip_score_table`. If `confidence_intervals` is TRUE, there will be a `confidence_intervals` column of tibbles containing the upper and lower bounds of the 95% confidence interval for the party's IScores.
 }
 \description{
-Function that takes platforms, and calculates the minor parties' I-Scores
+Function that calculates minor parties' I-Scores
 }
