@@ -2,18 +2,18 @@
 % Please edit documentation in R/configure_python.R
 \name{configure_python}
 \alias{configure_python}
-\title{Helper function to setup python tools required for processing platforms}
+\title{Set up the python tools required for IScorePackage's analysis}
 \usage{
 configure_python(env_name = "iscores", manifestoberta_model_id = "2024-1-1")
 }
 \arguments{
-\item{env_name}{Name of the python virtual environment to setup ("iscores" by default)}
+\item{env_name}{String. Name of the Python virtual environment to set up. Defaults to `"iscores"`.}
 
-\item{manifestoberta_model_id}{Version of the ManifestoBERTA model to use ("2024-1-1" by default)}
+\item{manifestoberta_model_id}{String. Version of the ManifestoBERTA model to load (must match a valid model). Defaults to "2024-1-1".}
 }
 \value{
-Returns invisible(TRUE) when setup is successful, otherwise it provides a descriptive error
+Invisibly returns `TRUE`.
 }
 \description{
-Helper function to setup python tools required for processing platforms
+`configure_python()` uses **reticulate** to create or activate a Python virtual environment and install the required packages for running **spacyr** (sentence tokenization) and **huggingfaceR** (issue-area classification via ManifestoBERTA).
 }

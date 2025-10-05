@@ -2,27 +2,27 @@
 % Please edit documentation in R/process_platform_emphasis.R
 \name{process_platform_emphasis}
 \alias{process_platform_emphasis}
-\title{Function that takes platforms, splits them into sentences, and calculates issue-area emphasis scores}
+\title{Calculate platforms' issue-area emphasis scores}
 \usage{
 process_platform_emphasis(tibble, cleaning = TRUE)
 }
 \arguments{
-\item{tibble}{Tibble with one row per platform, containing, at minimum:
-- `text`: A character column with the full text of each platform}
+\item{tibble}{Tibble. One row per platform, containing, at minimum:
+- `text`: Character column. The full text of each platform.}
 
-\item{cleaning}{Whether to apply basic text-cleaning before processing platforms (TRUE by default)}
+\item{cleaning}{Logical. Whether to apply basic text cleaning before processing each platform. Defaults to TRUE.}
 }
 \value{
-The same tibble with two rm list columns (if a platform cannot be processed due to a lack of text, the function will return an empty list for that platform):
- - `sentence_emphasis_scores`: A list of tibbles, one per sentence in the platform (in order). Each tibble has:
-    - `sentence`: The sentence (character)
-    - `scores`: A tibble with the sentence's emphasis scores, containing:
-        - `issue`: The issue's name (character)
-        - `score`: The sentence's score for that issue (numeric, summing to 1)
- - `overall_emphasis_scores`: A tibble with the platform's overall emphasis scores, containing:
-    - `issue`: The issue's name (character)
-    - `score`: The platform's score for that issue (numeric, summing to 1)
+Tibble. The input tibble with two additional list columns (if a platform cannot be processed due to a lack of text, the function will return an empty list for that platform):
+  - `sentence_emphasis_scores`: List column. A list per sentence in the platform (in order), containing:
+    - `sentence`: Character. The sentence.
+    - `scores`: Tibble. The sentence's emphasis score on each issue-area, containing:
+      - `issue`: Character column. The issue-area name.
+      - `score`: Numeric column. The sentence's score for that issue-area (summing to 1).
+  - `overall_emphasis_scores`: List column. A tibble with the platform's overall emphasis scores, containing:
+    - `issue`: Character column. The issue-area name.
+    - `score`: Numeric column. The platform's score for that issue-area (summing to 1).
 }
 \description{
-Function that takes platforms, splits them into sentences, and calculates issue-area emphasis scores
+`process_platform_emphasis()` takes a tibble of platforms, splits each platform into sentences, and calculates issue-area emphasis scores for each sentence and for the platform as a whole using the ManifestoBERTA model. These issue-area emphasis scores, respectively, represent the probability that each sentence is discussing each issue-area and the proportion of the platform that is devoted to each issue-area.
 }

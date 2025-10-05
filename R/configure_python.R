@@ -1,8 +1,10 @@
-#' Helper function to setup python tools required for processing platforms
+#' Set up the python tools required for IScorePackage's analysis
 #'
-#' @param env_name Name of the python virtual environment to setup ("iscores" by default)
-#' @param manifestoberta_model_id Version of the ManifestoBERTA model to use ("2024-1-1" by default)
-#' @return Returns invisible(TRUE) when setup is successful, otherwise it provides a descriptive error
+#' `configure_python()` uses **reticulate** to create or activate a Python virtual environment and install the required packages for running **spacyr** (sentence tokenization) and **huggingfaceR** (issue-area classification via ManifestoBERTA).
+#'
+#' @param env_name String. Name of the Python virtual environment to set up. Defaults to `"iscores"`.
+#' @param manifestoberta_model_id String. Version of the ManifestoBERTA model to load (must match a valid model). Defaults to "2024-1-1".
+#' @return Invisibly returns `TRUE`.
 #' @export
 
 configure_python <- function(env_name = "iscores", manifestoberta_model_id = "2024-1-1") {
