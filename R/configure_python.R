@@ -24,7 +24,12 @@ configure_python <- function(env_name = "iscores", manifestoberta_model_id = "20
   spacyr::spacy_download_langmodel("en_core_web_sm")
 
   huggingfaceR::hf_python_depends()
-  iscores_environment[["model"]] <- huggingfaceR::hf_load_pipeline(paste0("manifesto-project/manifestoberta-xlm-roberta-56policy-topics-context-", manifestoberta_model_id), task = "text-classification", tokenizer = "xlm-roberta-large", truncation = TRUE, max_length = 512L, trust_remote_code = TRUE, top_k = NULL)
+  tryCatch(
+    {
+      iscores_environment[["model"]] <- huggingfaceR::hf_load_pipeline(paste0("manifesto-project/manifestoberta-xlm-roberta-56policy-topics-context-", manifestoberta_model_id), task = "text-classification", tokenizer = "xlm-roberta-large", truncation = TRUE, max_length = 512L, trust_remote_code = TRUE, top_k = NULL)
+    },
+    error = function(e) rlang::abort("Could not load the specified ManifestoBERTA model. Ensure the model ID exists and Hugging Face is accessible.")
+  )
 
   invisible(TRUE)
 }
