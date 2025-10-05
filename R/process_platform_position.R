@@ -105,7 +105,11 @@ process_platform_position <- function(tibble, inclusion_threshold = 0.2) {
         )
       )
     )
-  })
+  }, .progress = list(
+    name = "Calculating the position scores for each issue-area",
+    clear = TRUE,
+    type = "iterator"
+  ))
 
   # Reformat results back into original tibble
   tibble |>

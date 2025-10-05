@@ -35,7 +35,7 @@ calculate_iscores <- function(tibble, p_threshold = 0.05, core_threshold = 0.05,
   if (!is.logical(exclude_nonconvergence)) rlang::abort("The exclude_nonconvergence input must be a boolean.")
   if (!is.logical(adjust_p_values)) rlang::abort("The adjust_p_values input must be a boolean.")
   if (!is.logical(confidence_intervals)) rlang::abort("The confidence_intervals input must be a boolean.")
-  if (!is.numeric(n) || n <= 1) rlang::abort("The confidence_n input must be a whole number greater than 1.")
+  if (!is.numeric(confidence_n) || confidence_n <= 1) rlang::abort("The confidence_n input must be a whole number greater than 1.")
   if (!is.logical(calculation_tables)) rlang::abort("The calculation_tables input must be a boolean.")
   tibble <- tibble::as_tibble(tibble)
   confidence_n <- round(confidence_n)
@@ -141,7 +141,11 @@ calculate_iscores <- function(tibble, p_threshold = 0.05, core_threshold = 0.05,
       })
 
       list(ie_score_tibble = ie_score_tibble, ip_score_tibble = ip_score_tibble)
-    }))
+    }, .progress = list(
+      name = "Constructing calculation tibbles for each minor party",
+      clear = TRUE,
+      type = "iterator"
+    )))
 
   # Adjust calculation tibbles to rebalance IScores
   if (adjust_p_values) {
@@ -229,7 +233,11 @@ calculate_iscores <- function(tibble, p_threshold = 0.05, core_threshold = 0.05,
           ie_score_interpreted = c(quantile(scores$ie_score_interpreted, probs = c(0.025, 0.975))),
           ip_score = c(quantile(scores$ip_score, probs = c(0.025, 0.975)))
         )
-      }))
+      }, .progress = list(
+        name = "Creating Confidence Intervals",
+        clear = TRUE,
+        type = "iterator"
+      )))
   }
 
   # Return Tibble

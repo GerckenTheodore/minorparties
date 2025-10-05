@@ -90,7 +90,11 @@ process_platform_emphasis <- function(tibble, cleaning = TRUE) {
           scores = list(scores)
         )
       })
-    }))
+    }, .progress = list(
+      name = "Splitting each platform into scored sentences",
+      clear = TRUE,
+      type = "iterator"
+    )))
 
   # Calculate overall emphasis scores for each platform
   tibble <- tibble |>
