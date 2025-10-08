@@ -103,7 +103,7 @@ sample_data_product[[1]][[2]] |>
 
 Once you have built your tibble of platforms, you can feed it into the IScorePackage analysis pipeline, which consists of:
 
-1. `configure_python()`: Sets up a Python virtual environment and downloads the Python tools required for this package's analysis. This function only needs to be run once per R session and is required only for `process_platform_emphasis()`.
+1. `configure_python()`: Sets up a Python virtual environment and downloads the Python tools required for this package's analysis. This function only needs to be run once per R session and is required only for `process_platform_emphasis()` and `process_platform_position()`.
 
 2. `process_platform_emphasis()`: Calculates each platform's emphasis score for each issue area using the ManifestoBERTA model.
 
@@ -112,6 +112,8 @@ Once you have built your tibble of platforms, you can feed it into the IScorePac
 4. `calculate_iscores()`: Uses the calculated emphasis and position scores, as well as the provided information about which major-party platforms are relevant to which minor parties, to calculate each minor party's I-Scores. If you set `confidence_intervals = TRUE`, the function will also calculate bootstrapped confidence intervals for each minor party's I-Scores.
 
 The arguments that can be used to customize each function are described in the function documentation (`?function_name`).
+
+You should avoid using a GUI to open the result of `process_platform_emphasis()` or `process_platform_position()` because these objects can be quite large and take significant time to load. This will not be true of the result of `calculate_iscores()`, though, as the rows and columns needed for the pipeline (which comprise the majority of the size of the intermediate objects) are removed.
 
 The result of the pipeline is a tibble with one row per minor party, containing a scores list column with the minor party's `ie_score`, `ie_score_interpreted`, and `ip_score.`
 

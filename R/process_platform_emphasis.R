@@ -27,7 +27,7 @@
 #' @export
 
 process_platform_emphasis <- function(tibble, cleaning = TRUE) {
-  # Check that the inputs are correctly structured
+  # Checks that the inputs are correctly structured
   validator_tibble <- validation(tibble, "emphasis")
   if (nrow(validator_tibble) > 0) {
     rlang::abort("The tibble is incorrectly structured.", tibble = validator_tibble)
@@ -35,7 +35,7 @@ process_platform_emphasis <- function(tibble, cleaning = TRUE) {
   if (!is.logical(cleaning)) rlang::abort("The cleaning input must be a boolean.")
   tibble <- tibble::as_tibble(tibble)
 
-  # Ensure python tools work
+  # Ensures python tools work
   try(spacyr::spacy_finalize(), silent = TRUE)
   spacyr_test <- tryCatch(
     {
@@ -53,7 +53,7 @@ process_platform_emphasis <- function(tibble, cleaning = TRUE) {
   )
   if (!spacyr_test || !manifestoBERTA_test) stop("Python environment is not properly configured. Please run `configure_python()` to set it up.")
 
-  # Clean platforms with basic cleaning operations if requested
+  # Cleans platforms with basic cleaning operations, if requested
   if (cleaning) {
     tibble <- tibble |>
       dplyr::mutate(
@@ -67,19 +67,21 @@ process_platform_emphasis <- function(tibble, cleaning = TRUE) {
       )
   }
 
-  # Split each platform into scored sentences
+  # Generates emphasis scores for each sentence of each platform
   tibble <- tibble |>
     dplyr::mutate(sentence_emphasis_scores = purrr::map(text, function(text_v) {
-      if (is.na(text_v) || !nzchar(text_v)) {
+      if (is.na(text_v) || !nzchar(text_v)) { # If no platform is provided, return an empty list
         return(list())
       }
 
+      # Splits the platform into sentences
       sentences <- spacyr::spacy_tokenize(text_v, what = "sentence", simplify = TRUE)
       sentences <- sentences[nchar(sentences) > 0][[1]]
       if (!length(sentences)) {
         return(list())
       }
 
+      # Scores each sentence using ManifestoBERTA
       purrr::map(seq_along(sentences), function(i) {
         current_sentence <- sentences[[i]]
         previous_sentence <- if (i > 1) sentences[[i - 1]] else ""
@@ -87,9 +89,9 @@ process_platform_emphasis <- function(tibble, cleaning = TRUE) {
         context <- stringr::str_squish(paste(previous_sentence, current_sentence, next_sentence, sep = " "))
         scores <- iscores_environment$model(list(list(text = current_sentence, text_pair = context)))[[1]]
 
-        scores <- tibble::tibble(issue = purrr::map_chr(scores, "label"), score = purrr::map_dbl(scores, "score")) |>
+        scores <- tibble::tibble(issue = purrr::map_chr(scores, "label"), score = purrr::map_dbl(scores, "score")) |> # Format the scores into a tibble so they can be referenced and manipulated in later functions
           dplyr::mutate(
-            issue = issue |>
+            issue = issue |> # Collapse dichotomous variables because position will be calculated later using Wordfish
               stringr::str_remove("^[0-9]+\\s+[\\u2013-]\\s+") |>
               stringr::str_remove(":\\s*(Positive|Negative)$")
           ) |>
@@ -101,20 +103,20 @@ process_platform_emphasis <- function(tibble, cleaning = TRUE) {
           sentence = current_sentence,
           scores = list(scores)
         )
-      })
-    }, .progress = list(
+      }) # Assembles a list of each sentence and its score tibbles, which then becomes the value of the platform's sentence_emphasis_scores column
+    }, .progress = list( # This function can take a while
       name = "Splitting each platform into scored sentences",
       clear = TRUE,
       type = "iterator"
     )))
 
-  # Calculate overall emphasis scores for each platform
+  # Calculates overall emphasis scores for each platform
   tibble <- tibble |>
     dplyr::mutate(overall_emphasis_scores = purrr::map(sentence_emphasis_scores, function(emphasis_scores) {
       if (!length(emphasis_scores)) {
         return(list())
       }
-      dplyr::bind_rows(emphasis_scores) |>
+      dplyr::bind_rows(emphasis_scores) |> # Combine all the sentence scores into one tibble and average them
         tidyr::unnest(scores) |>
         dplyr::group_by(issue) |>
         dplyr::summarize(score = sum(score), .groups = "drop") |>
@@ -122,7 +124,7 @@ process_platform_emphasis <- function(tibble, cleaning = TRUE) {
         dplyr::arrange(dplyr::desc(score))
     }))
 
-  # Wrap up spacy process
+  # Wraps up spacy process
   spacyr::spacy_finalize()
 
   return(tibble)

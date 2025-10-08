@@ -66,7 +66,7 @@
 #' @export
 
 calculate_iscores <- function(tibble, p_threshold = 0.05, core_threshold = 0.05, exclude_nonconvergence = TRUE, adjust_p_values = TRUE, confidence_intervals = FALSE, confidence_n = 1000, calculation_tables = FALSE) {
-  # Check that the inputs are correctly structured
+  # Checks that the inputs are correctly structured
   validator_tibble <- validation(tibble, "iscores")
   if (nrow(validator_tibble) > 0) {
     print(validator_tibble)
@@ -82,11 +82,11 @@ calculate_iscores <- function(tibble, p_threshold = 0.05, core_threshold = 0.05,
   tibble <- tibble::as_tibble(tibble)
   confidence_n <- round(confidence_n)
 
-  # Pull the major party data relevant for each minor party
-  lookup_table <- tibble |>
+  # Gives each minor party platform access to the position and emphasis data of the major party platforms it is tagged with
+  lookup_table <- tibble |> # Arranges the data by party
     dplyr::select(party, sentence_emphasis_scores, overall_emphasis_scores, position_scores) |>
     split(tibble$party)
-  minor_parties <- tibble |>
+  minor_parties <- tibble |> # Gives each minor party the data of the major parties it is tagged with
     dplyr::filter(minor_party) |>
     dplyr::mutate(major_party_info = purrr::map(major_party_platforms, function(platforms) {
       purrr::map(platforms, function(major) {
@@ -94,42 +94,42 @@ calculate_iscores <- function(tibble, p_threshold = 0.05, core_threshold = 0.05,
       })
     }))
 
-  # Construct calculation tibbles for each minor party
+  # Constructs calculation tibbles for each minor party
   minor_parties <- minor_parties |>
     dplyr::mutate(calculation_tables = purrr::map(minor_parties$party, function(party_v) {
       party_row <- dplyr::filter(minor_parties, party == party_v)
       major_info <- party_row$major_party_info[[1]]
 
-      top_issues <- party_row |>
+      top_issues <- party_row |> # The issue-areas the minor party dedicates above the core_threshold of their platform to are the core issue-areas its performance is evaluated on
         purrr::pluck("overall_emphasis_scores", 1) |>
         dplyr::filter(score > core_threshold) |>
         dplyr::arrange(issue) |>
         dplyr::pull(issue)
       top_issues <- party_row |>
         purrr::pluck("position_scores", 1) |>
-        dplyr::filter(issue %in% top_issues & !is.na(score)) |>
+        dplyr::filter(issue %in% top_issues & !is.na(score)) |> # A core issue cannot have a position score of NA, as that would render an Ip-Score impossible to calculate
         dplyr::arrange(issue) |>
         dplyr::pull(issue)
 
-      sort_scores <- function(scores, to_pull = "score") {
+      sort_scores <- function(scores, to_pull = "score") { # Helper function to pull scores in the order of top_issues. THIS IS VERY VERY IMPORTANT, VECTORS MUST BE ALLIGNED IN THE SAME WAY!!!
         scores[[1]] |>
           dplyr::filter(issue %in% top_issues) |>
           dplyr::arrange(factor(issue, levels = top_issues)) |>
           dplyr::pull(to_pull)
       }
 
-      # Ie Scores
-      pull_sentence_scores <- function(sentence_emphasis_scores, issue_v) {
+      # Creates the Ie-Score calculation tibble (each party's emphasis scores before and after the minor party, the change, and the statistical significance of that change)
+      pull_sentence_scores <- function(sentence_emphasis_scores, issue_v) { # Helper function to find the distribution of scores for a given issue across all of the sentences of a platform
         purrr::map_dbl(sentence_emphasis_scores[[1]], function(sentence) {
           matching_row <- dplyr::filter(sentence$scores[[1]], issue == issue_v)
           matching_row$score
         })
       }
 
-      ie_score_tibble <- purrr::imap_dfr(major_info, function(major, i) {
+      ie_score_tibble <- purrr::imap_dfr(major_info, function(major, i) { # Creates a stacked tibble with each major party's scores and meta-columns to distinguish between layers (party name, weight, party number)
         before_scores <- sort_scores(major$before$overall_emphasis_scores)
         after_scores <- sort_scores(major$after$overall_emphasis_scores)
-        change <- after_scores - before_scores
+        change <- after_scores - before_scores # Because minor parties wish to increase the salience of their core issues, an increase in emphasis beyond the minor party's own emphasis continues to be considered a positive change (this is in contrast to the Ip-Score logic where distance from the minor party's position is what matters)
 
         statistical_significance <- purrr::map_dbl(top_issues, function(issue) {
           before <- pull_sentence_scores(major$before$sentence_emphasis_scores, issue)
@@ -146,7 +146,7 @@ calculate_iscores <- function(tibble, p_threshold = 0.05, core_threshold = 0.05,
           dplyr::select(party_number, name, weight, dplyr::everything())
       })
 
-      # Ip Scores
+      # Creates the Ip-Score calculation (structured in the same way as the Ie-Score tibble)
       minor_position_scores <- party_row |>
         purrr::pluck("position_scores", 1) |>
         dplyr::filter(issue %in% top_issues) |>
@@ -160,10 +160,10 @@ calculate_iscores <- function(tibble, p_threshold = 0.05, core_threshold = 0.05,
         after_se <- sort_scores(major$after$position_scores, "se")
         before_distance <- abs(minor_position_scores - before_scores)
         after_distance <- abs(minor_position_scores - after_scores)
-        change <- before_distance - after_distance
+        change <- before_distance - after_distance # Here, unlike in Ie-Scores, it is the distance from the minor party's position that matters, so moving past a minor party's position would start to decrease the score (imagine a minor party in the center of the major parties; a major party moving from their one extreme to the other, even if technically in the direction of the minor party, is not a positive change in the eyes of the minor)
         weight <- major$weight
 
-        if (exclude_nonconvergence) {
+        if (exclude_nonconvergence) { # If the user wants to exclude non-converged models, treats those issue-areas as if no score had been found. This should be an edge case.
           convergence <- sort_scores(major$before$position_scores, "convergence") & sort_scores(major$after$position_scores, "convergence")
           before_scores[!convergence] <- NA
           before_se[!convergence] <- NA
@@ -171,7 +171,7 @@ calculate_iscores <- function(tibble, p_threshold = 0.05, core_threshold = 0.05,
 
         statistical_significance <- rep(NA_real_, length(before_scores))
         not_NA <- !is.na(before_scores) & !is.na(before_se) & !is.na(after_scores) & !is.na(after_se)
-        z <- (before_scores[not_NA] - after_scores[not_NA]) / sqrt(before_se[not_NA]^2 + after_se[not_NA]^2)
+        z <- (before_scores[not_NA] - after_scores[not_NA]) / sqrt(before_se[not_NA]^2 + after_se[not_NA]^2) # Z-test
         statistical_significance[not_NA] <- 2 * stats::pnorm(-abs(z))
 
         return_tibble <- rbind(before_scores, after_scores, change, statistical_significance)
@@ -189,9 +189,9 @@ calculate_iscores <- function(tibble, p_threshold = 0.05, core_threshold = 0.05,
       type = "iterator"
     )))
 
-  # Adjust calculation tibbles to rebalance IScores
+  # Adjusts calculation tibbles to rebalance IScores. This is necessary because the large number of comparisons (each minor party performs two statistical significance tests (Ie and IP Scores) for each issue-area for each major party) increases the likelihood of false positives.
   if (adjust_p_values) {
-    p_values <- minor_parties |>
+    p_values <- minor_parties |> # Collapse all p-values into one table (with identifying information on their origin) then re-balance them
       dplyr::select(party, calculation_tables) |>
       tidyr::unnest_longer(calculation_tables, indices_to = "type") |>
       tidyr::unnest(calculation_tables, names_sep = "_") |>
@@ -200,7 +200,7 @@ calculate_iscores <- function(tibble, p_threshold = 0.05, core_threshold = 0.05,
       dplyr::mutate(adjusted_p_value = stats::p.adjust(p_value, method = "BH")) |>
       dplyr::select(party, type, calculation_tables_party_number, issue, adjusted_p_value)
 
-    minor_parties <- minor_parties |>
+    minor_parties <- minor_parties |> # Goes through each calculation table and replace the p-values with the matching adjusted p-values
       dplyr::mutate(calculation_tables = purrr::map2(calculation_tables, party, function(tables, party_v) {
         purrr::imap(tables, function(table, name) {
           new_p_values <- dplyr::filter(p_values, party == party_v & type == name) |>
@@ -211,7 +211,7 @@ calculate_iscores <- function(tibble, p_threshold = 0.05, core_threshold = 0.05,
 
           table |>
             dplyr::filter(name != "significance") |>
-            dplyr::bind_rows(new_p_values) |>
+            dplyr::bind_rows(new_p_values) |> # bind_rows() matches up columns, so the new p-values will go in the right place
             dplyr::group_by(party_number) |>
             dplyr::mutate(weight = ifelse(is.na(weight), dplyr::first(stats::na.omit(weight)), weight)) |>
             dplyr::ungroup()
@@ -219,9 +219,10 @@ calculate_iscores <- function(tibble, p_threshold = 0.05, core_threshold = 0.05,
       }))
   }
 
-  # Calculate IScores
+  # Calculates IScores
   minor_parties <- minor_parties |>
     dplyr::mutate(scores = purrr::map2(party, calculation_tables, function(party_v, tables) {
+      # Gets the necessary inputs for the ix_scores() functions
       party_row <- dplyr::filter(minor_parties, party == party_v)
       top_issues <- tables$ie_score_tibble |>
         dplyr::select(-party_number, -name, -weight, -party) |>
@@ -233,10 +234,11 @@ calculate_iscores <- function(tibble, p_threshold = 0.05, core_threshold = 0.05,
       list(ie_score = ie_scores$ie_score, ie_score_interpreted = ie_scores$ie_score_interpreted, ip_score = ip_score)
     }))
 
-  # Create Confidence Intervals
+  # Create confidence intervals
   if (confidence_intervals) {
     minor_parties <- minor_parties |>
       dplyr::mutate(confidence_intervals = purrr::map2(party, calculation_tables, function(party_v, tables) {
+        # Gets the necessary inputs for the ix_scores() functions
         party_row <- dplyr::filter(tibble, party == party_v)
         top_issues <- tables$ie_score_tibble |>
           dplyr::select(-party_number, -name, -weight, -party) |>
@@ -246,8 +248,9 @@ calculate_iscores <- function(tibble, p_threshold = 0.05, core_threshold = 0.05,
           dplyr::filter(issue %in% top_issues)
 
         scores <- purrr::map_dfr(1:confidence_n, function(i) {
+          # Bootstraps by sampling issue-areas with replacement
           sampled_issues <- sample(top_issues, size = length(top_issues), replace = TRUE)
-          sampled_top_issues <- tibble::tibble(issue = sampled_issues) |>
+          sampled_top_issues <- tibble::tibble(issue = sampled_issues) |> # Applies the sampling procedure by reweighing the issue-area emphasis scores
             dplyr::count(issue, name = "frequency") |>
             dplyr::right_join(top_issue_tibble, by = "issue") |>
             dplyr::mutate(frequency = tidyr::replace_na(frequency, 0)) |>
@@ -259,6 +262,7 @@ calculate_iscores <- function(tibble, p_threshold = 0.05, core_threshold = 0.05,
           sampled_party_row <- party_row
           sampled_party_row$overall_emphasis_scores[[1]] <- sampled_top_issues
 
+          # Recalculates the I-Scores based on the reweighed issue-areas
           ie_scores <- ie_score_sum(tables$ie_score_tibble, party_row = sampled_party_row, top_issues, p_threshold)
           ip_scores <- ip_score_sum(tables$ip_score_tibble, party_row = sampled_party_row, top_issues, p_threshold)
 
@@ -266,9 +270,10 @@ calculate_iscores <- function(tibble, p_threshold = 0.05, core_threshold = 0.05,
             ie_score = ie_scores$ie_score,
             ie_score_interpreted = ie_scores$ie_score_interpreted,
             ip_score = ip_scores
-          )
+          ) # Stacks all the IScores generated from bootstrap samples together
         })
 
+        # Calculates 95% confidence intervals from the bootstrap samples' IScores
         tibble::tibble(
           side = c("lower", "upper"),
           ie_score = c(stats::quantile(scores$ie_score, probs = c(0.025, 0.975))),
@@ -282,7 +287,7 @@ calculate_iscores <- function(tibble, p_threshold = 0.05, core_threshold = 0.05,
       )))
   }
 
-  # Return Tibble
+  # Returns cleaned tibble. If the supurfluous columns in the tibble aren't dropped, the tibble will take a long time to render (this is also true of the process_platform_position/emphasis() outputs).
   if (!calculation_tables) {
     minor_parties <- dplyr::select(minor_parties, -calculation_tables)
   }

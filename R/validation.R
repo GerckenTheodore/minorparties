@@ -1,5 +1,14 @@
+#' Validate the stucture of a tibble
+#'
+#' validation() checks the structure of an input tibble to ensure it meets the requirements for a given processing phase. The functions calling validation() should check if the returned tibble has any rows, and if so, return it to the user as an error message.
+#'
+#' @param tibble Tibble. The tibble input to the function calling validation().
+#' @param set Character. The set of validators to apply ("position", "emphasis", "iscores", or "finished").
+#' @return Tibble of failed validation checks.
+#' @keywords internal
+
 validation <- function(tibble, set) {
-  error_wrapper <- function(logic, columns = c()) {
+  error_wrapper <- function(logic, columns = c()) { # Wrapper to ensure that a failed test returns FALSE rather than an error
     tryCatch(
       {
         if (!all(columns %in% colnames(tibble))) {
@@ -13,8 +22,9 @@ validation <- function(tibble, set) {
 
   error_wrapper(issues <- tibble$sentence_emphasis_scores[[1]][[1]]$scores[[1]]$issue, columns = c("sentence_emphasis_scores"))
 
+  # Tests every possible requirement in a tibble with each tests' error message, result, type, and the set of functions it applies to
   tibble::tibble(
-    error = c(
+    error = c( # Error messages
       "The `tibble` input must be a dataframe",
       "The `text` column must be a character column",
       "The `party` column must be a character column",
@@ -36,7 +46,7 @@ validation <- function(tibble, set) {
       "Every minor party's `major_party_platforms` column must contain a list for each major party with `before`, `after`, and `weight` entries. The `before` and `after` entries must be character vectors with the name of a major party's platform, contained in the tibble, and the `weight` entry must be numeric and positive",
       "Every party's `scores` column must contain `ie_score`, `ie_score_interpreted`, and `ip_score` numeric columns."
     ),
-    passing = list(
+    passing = list( # Error tests
       error_wrapper(is.data.frame(tibble)),
       error_wrapper(is.character(tibble$text), columns = ("text")),
       error_wrapper(is.character(tibble$party), columns = ("party")),
@@ -77,7 +87,7 @@ validation <- function(tibble, set) {
         is.numeric(scores$ie_score) && is.numeric(scores$ie_score_interpreted) && is.numeric(scores$ip_score)
       }), columns = ("scores"))
     ),
-    rowwise = c(
+    rowwise = c( # Whether a failure would indicate a problem with a single row or with the tibble's structure
       FALSE,
       FALSE,
       FALSE,
@@ -99,7 +109,7 @@ validation <- function(tibble, set) {
       TRUE,
       TRUE
     ),
-    sets = list(
+    sets = list( # The sets of functions each test applies to
       c("position", "emphasis", "iscores", "finished"),
       c("emphasis"),
       c("position", "iscores", "finished"),
@@ -121,10 +131,10 @@ validation <- function(tibble, set) {
       c("iscores"),
       c("finished")
     )
-  ) |>
+  ) |> # Filters the tibble to only show the failed tests relevant to the function being run (the tests tagged with the provided set) and returns the relevant failures and (where applicable) the rows that triggered each
     dplyr::mutate(
       passed = purrr::map_lgl(passing, function(check) all(check)),
-      failing_rows = purrr::map2(passing, rowwise, function(check, rowwise) {
+      failing_rows = purrr::map2(passing, rowwise, function(check, rowwise) { # For each failed test check if it is a tibble-wide issue and, if it is not, find the row(s) that triggered the failure
         if (!rowwise || length(passing) == 1) {
           "tibble-wide issue"
         } else {
@@ -132,9 +142,6 @@ validation <- function(tibble, set) {
         }
       })
     ) |>
-    dplyr::filter(
-      !passed,
-      purrr::map_lgl(sets, function(row_sets) set %in% row_sets)
-    ) |>
+    dplyr::filter(!passed, purrr::map_lgl(sets, function(row_sets) set %in% row_sets)) |>
     dplyr::select(-c("rowwise", "passing", "passed", "sets"))
 }

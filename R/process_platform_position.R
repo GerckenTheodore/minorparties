@@ -29,7 +29,7 @@
 #' @export
 
 process_platform_position <- function(tibble, inclusion_threshold = 0.2) {
-  # Check that the inputs are correctly structured
+  # Checks that the inputs are correctly structured
   validator_tibble <- validation(tibble, "position")
   if (nrow(validator_tibble) > 0) {
     rlang::abort("The tibble is incorrectly structured.", tibble = validator_tibble)
@@ -37,7 +37,17 @@ process_platform_position <- function(tibble, inclusion_threshold = 0.2) {
   if (!is.numeric(inclusion_threshold) || inclusion_threshold < 0 || inclusion_threshold > 1) rlang::abort("The inclusion_threshold must be a number between 0 and 1.")
   tibble <- tibble::as_tibble(tibble)
 
-  # Pull the sentences that correspond to each issue
+  # Ensures python tools work
+  manifestoBERTA_test <- tryCatch(
+    {
+      result <- iscores_environment$model(list(list(text = "These principles are under threat.", text_pair = paste("Human rights and international humanitarian law are fundamental pillars of a secure global system. These principles are under threat. Some of the world's most powerful states choose to sell arms to human-rights abusing states."))))
+      is.list(result) && length(result) > 0
+    },
+    error = function(e) FALSE
+  )
+  if (!manifestoBERTA_test) stop("Python environment is not properly configured. Please run `configure_python()` to set it up.")
+
+  # Pulls the sentences that correspond to each issue (Wordfish needs every sentence in an issue-area, regardless of origin, to run most accuratly)
   issues <- tibble$sentence_emphasis_scores[[1]][[1]]$scores[[1]]$issue
   labeled_sentences <- tibble |>
     tidyr::unnest(sentence_emphasis_scores) |>
@@ -46,13 +56,13 @@ process_platform_position <- function(tibble, inclusion_threshold = 0.2) {
     dplyr::filter(score > inclusion_threshold) |>
     dplyr::select(party, sentence, issue)
 
-  # Calculate the position scores for each issue-area
+  # Calculates the position scores for each issue-area
   position_table <- purrr::map_dfr(issues, function(issue_v) {
     selected_sentences <- labeled_sentences |>
       dplyr::filter(issue == issue_v) |>
       dplyr::select(party, sentence)
 
-    # Return if there are not enough sentences for a Wordfish analysis
+    # Returns if there are not enough sentences for a Wordfish analysis (will propagate NAs through to final output, excluding the issue-area from any further analysis)
     if (nrow(selected_sentences) < 3) {
       return(tibble::tibble(
         issue = issue_v,
@@ -65,7 +75,7 @@ process_platform_position <- function(tibble, inclusion_threshold = 0.2) {
       ))
     }
 
-    # Create the dfm
+    # Creates the dfm
     dfm_input <- selected_sentences |>
       dplyr::group_by(party) |>
       dplyr::summarise(full_text = paste(sentence, collapse = " "), .groups = "drop")
@@ -78,7 +88,7 @@ process_platform_position <- function(tibble, inclusion_threshold = 0.2) {
       quanteda::dfm() |>
       quanteda::dfm_trim(min_termfreq = 5)
 
-    # Return if, after creating the dfm, there are not enough documents or terms
+    # Returns if, after creating the dfm, there are not enough documents or terms (as above, this will propagate NAs through to final output)
     if (length(quanteda::docnames(dfm)) < 2 || sum(dfm) == 0) {
       return(tibble::tibble(
         issue = issue_v,
@@ -91,7 +101,7 @@ process_platform_position <- function(tibble, inclusion_threshold = 0.2) {
       ))
     }
 
-    # Run Wordfish
+    # Runs Wordfish
     warn_message <- ""
     wordfish <- withCallingHandlers(
       quanteda.textmodels::textmodel_wordfish(dfm),
@@ -100,9 +110,9 @@ process_platform_position <- function(tibble, inclusion_threshold = 0.2) {
         invokeRestart("muffleWarning")
       }
     )
-    convergence <- !grepl("converge", warn_message)
+    convergence <- !grepl("converge", warn_message) # If the model did not converge, this will be FALSE, allowing users to filter out non-converged models in calculate_i_scores() if they wish
 
-    if (any(is.na(wordfish$theta))) {
+    if (any(is.na(wordfish$theta))) { # If Wordfish fails to produce results, propagates NAs through to final output
       return(tibble::tibble(
         issue = issue_v,
         position_table = list(tibble::tibble(
@@ -113,7 +123,7 @@ process_platform_position <- function(tibble, inclusion_threshold = 0.2) {
         ))
       ))
     }
-    tibble::tibble(
+    tibble::tibble( # Formats the relative positions of every platform into a tibble
       issue = issue_v,
       position_table = list(
         dplyr::bind_rows(
@@ -128,7 +138,7 @@ process_platform_position <- function(tibble, inclusion_threshold = 0.2) {
     type = "iterator"
   ))
 
-  # Reformat results back into original tibble
+  # Reformats results back into original tibble (each platform gets its position scores on every issue-ara)
   tibble |>
     dplyr::mutate(position_scores = purrr::map(tibble$party, function(party_v) {
       purrr::map_dfr(issues, function(issue_v) {

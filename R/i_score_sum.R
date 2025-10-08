@@ -1,4 +1,14 @@
-weighted_party_scores <- function(scores, weights) {
+#' Generate IScores From A Calculation Tibble
+#'
+#' ie_score_sum/ip_score_sum() properly weights each element of an IX-Score calculation tibble to produce
+#'
+#' @param ie_score_tibble/ip_score_tibble Tibble. The calculation tibble (created during calculate_i_scores())
+#' @param party_row Tibble. The minor party platform's row of the main tibble (the tibble input to calculate_i_scores()).
+#' @param top_issues Character vector. The minor party platform's top issues.
+#' @return List. The score(s).
+#' @keywords internal
+
+weighted_party_scores <- function(scores, weights) { # Helper function to weight the changes of major parties by their party's set weight and then weight those using a geometric sequence (to recognize that persuading one major party is likely to incentivize others to move away from their positions while still rewarding a minor party capable of influencing multiple major parties simultaneously).
   avg_weight <- mean(weights)
   adj_weights <- weights / avg_weight
   weighted_scores <- (scores * adj_weights) |>
@@ -8,13 +18,14 @@ weighted_party_scores <- function(scores, weights) {
   sum(weighted_scores * geom_weights)
 }
 
+# Calculates Ie-Scores
 ie_score_sum <- function(ie_score_tibble, party_row, top_issues, p_threshold) {
   calculation_tibble <- party_row |>
     purrr::pluck("overall_emphasis_scores", 1) |>
-    dplyr::filter(issue %in% top_issues) |>
+    dplyr::filter(issue %in% top_issues) |> # Gets the weight of each top issue (as determined by the minor party platform's emphasis score of that issue)
     dplyr::mutate(change_score = purrr::map(top_issues, function(issue) {
-      party_scores <- purrr::map_dfr(unique(ie_score_tibble$party_number), function(number) {
-        pull_number <- function(type, to_pull) {
+      party_scores <- purrr::map_dfr(unique(ie_score_tibble$party_number), function(number) { # For each major party, pull its relevant scores (from the ie_score_tibble) for the given issue
+        pull_number <- function(type, to_pull) { # Helper function to pull a number from the ie_score_tibble for a given party and type of number (change, before, significance)
           dplyr::filter(ie_score_tibble, party_number == number & name == type) |>
             purrr::pluck(to_pull, 1)
         }
@@ -27,6 +38,7 @@ ie_score_sum <- function(ie_score_tibble, party_row, top_issues, p_threshold) {
         )
       })
 
+      # Finds the weighted change and weighted before scores for the issue
       weighted_change <- weighted_party_scores(party_scores$change, party_scores$weight)
       weighted_before <- sum(party_scores$before * party_scores$weight) / sum(party_scores$weight)
 
@@ -34,12 +46,13 @@ ie_score_sum <- function(ie_score_tibble, party_row, top_issues, p_threshold) {
     })) |>
     tidyr::unnest_wider(change_score)
 
-  ie_score <- sum(calculation_tibble$score * calculation_tibble$weighted_change) / sum(calculation_tibble$score)
-  ie_score_interpreted <- ie_score / (sum(calculation_tibble$score * calculation_tibble$weighted_before) / sum(calculation_tibble$score))
+  ie_score <- sum(calculation_tibble$score * calculation_tibble$weighted_change) / sum(calculation_tibble$score) # Calculates a weighted Ie-Score from the weighted changes of each issue and the weight of each issue
+  ie_score_interpreted <- ie_score / (sum(calculation_tibble$score * calculation_tibble$weighted_before) / sum(calculation_tibble$score)) # Adjusts the Ie-Score to be a percentage change (instead of a change measured in percentage points)
 
   return(list(ie_score = ie_score, ie_score_interpreted = ie_score_interpreted))
 }
 
+# Calculates Ip-Score (using the same logic as ie_score_sum())
 ip_score_sum <- function(ip_score_tibble, party_row, top_issues, p_threshold) {
   calculation_tibble <- party_row |>
     purrr::pluck("overall_emphasis_scores", 1) |>
