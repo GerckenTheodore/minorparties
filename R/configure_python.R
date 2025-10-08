@@ -1,6 +1,6 @@
 #' Set up the python tools required for IScorePackage's analysis
 #'
-#' `configure_python()` uses **reticulate** to create or activate a Python virtual environment and install the required packages for running **spacyr** (sentence tokenization) and **huggingfaceR** (issue-area classification via ManifestoBERTA).
+#' `configure_python()` uses `reticulate` to create or activate a Python virtual environment and install the required packages for running `spacyr` (sentence tokenization) and `huggingfaceR` (issue-area classification via ManifestoBERTA).
 #'
 #' @param env_name String. Name of the Python virtual environment to set up. Defaults to `"iscores"`.
 #' @param manifestoberta_model_id String. Version of the ManifestoBERTA model to load (must match a valid model). Defaults to "2024-1-1".

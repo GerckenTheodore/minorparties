@@ -114,7 +114,7 @@ calculate_iscores <- function(tibble, p_threshold = 0.05, core_threshold = 0.05,
         statistical_significance <- purrr::map_dbl(top_issues, function(issue) {
           before <- pull_sentence_scores(major$before$sentence_emphasis_scores, issue)
           after <- pull_sentence_scores(major$after$sentence_emphasis_scores, issue)
-          wilcox.test(before, after, alternative = "two.sided", exact = FALSE)$p.value
+          stats::wilcox.test(before, after, alternative = "two.sided", exact = FALSE)$p.value
         })
         weight <- major$weight
 
@@ -152,7 +152,7 @@ calculate_iscores <- function(tibble, p_threshold = 0.05, core_threshold = 0.05,
         statistical_significance <- rep(NA_real_, length(before_scores))
         not_NA <- !is.na(before_scores) & !is.na(before_se) & !is.na(after_scores) & !is.na(after_se)
         z <- (before_scores[not_NA] - after_scores[not_NA]) / sqrt(before_se[not_NA]^2 + after_se[not_NA]^2)
-        statistical_significance[not_NA] <- 2 * pnorm(-abs(z))
+        statistical_significance[not_NA] <- 2 * stats::pnorm(-abs(z))
 
         return_tibble <- rbind(before_scores, after_scores, change, statistical_significance)
         colnames(return_tibble) <- top_issues
@@ -193,7 +193,7 @@ calculate_iscores <- function(tibble, p_threshold = 0.05, core_threshold = 0.05,
             dplyr::filter(name != "significance") |>
             dplyr::bind_rows(new_p_values) |>
             dplyr::group_by(party_number) |>
-            dplyr::mutate(weight = ifelse(is.na(weight), dplyr::first(na.omit(weight)), weight)) |>
+            dplyr::mutate(weight = ifelse(is.na(weight), dplyr::first(stats::na.omit(weight)), weight)) |>
             dplyr::ungroup()
         })
       }))
@@ -251,9 +251,9 @@ calculate_iscores <- function(tibble, p_threshold = 0.05, core_threshold = 0.05,
 
         tibble::tibble(
           side = c("lower", "upper"),
-          ie_score = c(quantile(scores$ie_score, probs = c(0.025, 0.975))),
-          ie_score_interpreted = c(quantile(scores$ie_score_interpreted, probs = c(0.025, 0.975))),
-          ip_score = c(quantile(scores$ip_score, probs = c(0.025, 0.975)))
+          ie_score = c(stats::quantile(scores$ie_score, probs = c(0.025, 0.975))),
+          ie_score_interpreted = c(stats::quantile(scores$ie_score_interpreted, probs = c(0.025, 0.975))),
+          ip_score = c(stats::quantile(scores$ip_score, probs = c(0.025, 0.975)))
         )
       }, .progress = list(
         name = "Creating Confidence Intervals",

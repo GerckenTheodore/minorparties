@@ -1,2 +1,2 @@
-utils::globalVariables(c("convergence", "issue", "party", "score", "scores", "se", "sentence", "sentence_emphasis_scores", "text"))
+utils::globalVariables(c("convergence", "issue", "party", "score", "scores", "se", "sentence", "sentence_emphasis_scores", "text", "overall_emphasis_scores", "position_scores", "minor_party", "major_party_platforms", "party_number", "name", "calculation_tables_party", "calculation_tables_party_number", "calculation_tables_name", "calculation_tables_weight", "type", "p_value", "adjusted_p_value", "weight", "frequency", "weighted", "weighted_score", "change_score", "passed", "passing", "rowwise", "sets"))
 iscores_environment <- new.env(parent = emptyenv())
