@@ -1,0 +1,10 @@
+url: ~
+template:
+  bootstrap: 5
+reference:
+  - title: "I-Score Analysis Pipeline"
+    contents:
+      - configure_python
+      - process_platform_emphasis
+      - process_platform_position
+      - calculate_iscores

@@ -7,13 +7,13 @@
 configure_python(env_name = "iscores", manifestoberta_model_id = "2024-1-1")
 }
 \arguments{
-\item{env_name}{String. Name of the Python virtual environment to set up. Defaults to `"iscores"`.}
+\item{env_name}{Character. Name of the Python virtual environment to set up. Defaults to "iscores".}
 
-\item{manifestoberta_model_id}{String. Version of the ManifestoBERTA model to load (must match a valid model). Defaults to "2024-1-1".}
+\item{manifestoberta_model_id}{Character. Version of the ManifestoBERTA model to load (must match a valid model). Defaults to "2024-1-1".}
 }
 \value{
-Invisibly returns `TRUE`.
+Invisibly returns TRUE.
 }
 \description{
-`configure_python()` uses **reticulate** to create or activate a Python virtual environment and install the required packages for running **spacyr** (sentence tokenization) and **huggingfaceR** (issue-area classification via ManifestoBERTA).
+configure_python() uses reticulate to create or activate a Python virtual environment and install the required packages for running spacyr (sentence tokenization) and huggingfaceR (issue-area classification via ManifestoBERTA).
 }

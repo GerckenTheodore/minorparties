@@ -1,21 +1,31 @@
 #' Calculate platforms' issue-area position scores
 #'
-#' `process_platform_position()` takes a tibble of platforms that have already been processed with `process_platform_emphasis()` and calculates issue-area position scores for each platform using the Wordfish model. These position scores represent each platform's relative position on each issue-area compared to the others in the tibble (the positive end of the scale is arbitrarily defined).
+#' process_platform_position() takes a tibble of platforms that have already been processed with process_platform_emphasis() and calculates issue-area position scores for each platform using the Wordfish model. These position scores represent each platform's relative position on each issue-area compared to the others in the tibble (the positive end of the scale is arbitrarily defined).
 #'
-#' @param tibble Tibble. One row per platform, containing, at minimum (this function is designed to work with the output of `process_platform_emphasis()`):
-#'   - `party`: Character column. The party's name (this column must be unique for each platform).
-#'   - `sentence_emphasis_scores`: List column. A list per sentence in the platform (in order), containing:
-#'     - `sentence`: Character. The sentence.
-#'     - `scores`: Tibble. The sentence's emphasis score on each issue-area, containing:
-#'       - `issue`: Character column. The issue-area name.
-#'       - `score`: Numeric column. The sentence's score for that issue-area (summing to 1).
+#' @param tibble Tibble. One row per platform, containing, at minimum (this function is designed to work with the output of process_platform_emphasis()):
+#' \itemize{
+#'   \item{party}{: Character column. The party's name (this column must be unique for each platform).}
+#'   \item{sentence_emphasis_scores}{: List column. A list per sentence in the platform (in order), containing:}
+#'   \itemize{
+#'     \item{sentence}{: Character. The sentence.}
+#'     \item{scores}{: Tibble. The sentence's emphasis score on each issue-area, containing:}
+#'     \itemize{
+#'       \item{issue}{: Character column. The issue-area name.}
+#'       \item{score}{: Numeric column. The sentence's score for that issue-area (summing to 1).}
+#'     }
+#'   }
+#' }
 #' @param inclusion_threshold Numeric. The minimum probability a sentence must have of discussing an issue-area to be included in that issue-area's Wordfish model. Defaults to 0.2.
 #' @return Tibble. The input tibble with an additional list column:
-#'   - `position_scores`: List column. A tibble, containing:
-#'     - `issue`: Character column. The issue-area name.
-#'     - `position_score`: Numeric column. The platform's position score on the issue-area (NA if the platform did not have enough material about the issue-area to generate a score).
-#'     - `se`: Numeric column. The standard error of the position score.
-#'     - `convergence`: Logical column. Whether the Wordfish model converged (if the estimation algorithm reached a stable set of position scores without divergence).
+#' \itemize{
+#'   \item{position_scores}{: List column. A tibble, containing:}
+#'   \itemize{
+#'     \item{issue}{: Character column. The issue-area name.}
+#'     \item{position_score}{: Numeric column. The platform's position score on the issue-area (NA if the platform did not have enough material about the issue-area to generate a score).}
+#'     \item{se}{: Numeric column. The standard error of the position score.}
+#'     \item{convergence}{: Logical column. Whether the Wordfish model converged (if the estimation algorithm reached a stable set of position scores without divergence).}
+#'   }
+#' }
 #' @export
 
 process_platform_position <- function(tibble, inclusion_threshold = 0.2) {
