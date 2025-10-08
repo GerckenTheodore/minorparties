@@ -1,10 +1,11 @@
-url: ~
+url: https://gerckentheodore.github.io/IScorePackage/
 template:
   bootstrap: 5
 reference:
-  - title: "I-Score Analysis Pipeline"
-    contents:
-      - configure_python
-      - process_platform_emphasis
-      - process_platform_position
-      - calculate_iscores
+- title: I-Score Analysis Pipeline
+  contents:
+  - configure_python
+  - process_platform_emphasis
+  - process_platform_position
+  - calculate_iscores
+
