@@ -10,7 +10,7 @@ Authors@R: c(
     )
   )
 Description: I-Scores are a simple way to measure how successful minor political parties are at influencing the major parties in their environment.
-License: GPL (>= 3) + file LICENSE
+License: GPL (>= 3) + file GPL-3.0.md
 Encoding: UTF-8
 LazyData: true
 Suggests: 
