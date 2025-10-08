@@ -13,3 +13,140 @@ knitr::opts_chunk$set(
 )
 ```
 
+# IScorePackage
+
+<!-- badges: start -->
+
+<!-- badges: end -->
+
+`IScorePackage` is an R package designed to allow researchers to easily calculate minor political parties' I-Scores, a quantitative measure of the extent to which a minor party influences the major parties in its political environment.
+
+I-Scores are composed of two components, which capture different dimensions of minor-party influence:
+
+- **Ie-Score (issue-emphasis score)**: Measures the change in the emphasis major parties place on a minor party's core issue areas. Ie-Scores are measured as the increase or decrease (in points) in the percentage of the average major-party platform devoted to the minor party's average core issue area. The interpreted Ie-Score rescales this measure into a percentage change.
+
+- **Ip-Score (issue-position score)**: Measures the change in the position major parties take on a minor party's core issue areas. Ip-Scores are measured as the number of standard deviations shifted toward the minor party by the average major party on the minor party's average core issue area.
+
+Note: In both measures, the term "average major party on the minor party's average core issue area" refers to a weighted average that incorporates three layers of weighting: the importance a minor party assigns to each issue area, the weight the researcher assigns to each major party, and a geometric weighting that emphasizes the best change (to recognize that persuading one major party is likely to incentivize others to move away from their positions while still rewarding a minor party capable of influencing multiple major parties simultaneously).
+
+These measures were developed by Theodore Gercken in *Beyond the Ballot Box: Toward a Comprehensive Measure of Minor Party Success*.
+
+## Installation
+
+You can install the development version of `IScorePackage` from [GitHub](https://github.com/GerckenTheodore/IScorePackage) with:
+
+``` {r installation, eval = FALSE}
+# install.packages("devtools")
+devtools::install_github("https://github.com/GerckenTheodore/IScorePackage")
+```
+
+## Useage
+
+### Platforms
+
+To use the full `IScorePackage` pipeline, you must first obtain the party platforms of both the minor party you wish to test and the major parties in its political environment before and after the minor party's campaign. All platforms should be cleaned in accordance with the Manifesto Project's Coding Instructions (stripped of "headings, statistics, tables of contents, introductory remarks by party leaders," etc.). For example, if you were analyzing the influence of the American Libertarian Party over its 2012 and 2016 campaigns, you would use the Libertarian Party's 2012 platform as well as the Republican and Democratic Party platforms from 2012 and 2020 (published before and after the 2012–2016 movement).
+
+For a larger study that involves multiple minor parties, you should include all minor and major parties in the same dataset. However, all documents must be in the same language because the Wordfish algorithm assumes a single distribution of words across all documents.
+
+You may use platforms published after 1945 in any of the languages supported by the [ManifestoBERTA model](https://huggingface.co/manifesto-project/manifestoberta-xlm-roberta-56policy-topics-context-2024-1-1).
+
+### Tibble Construction
+
+Once you have compiled the platforms you will use, create a tibble with one row per platform and the following columns:
+
+- `party`: Character column. The party's name (this column must be unique for each platform, e.g., "Democratic Party 1992").
+
+- `text`: Character column. The full text of each platform.
+
+- `minor_party`: Logical column. Whether the party is a minor party.
+
+- `major_party_platforms`: List column. Only required for minor parties. A list containing a list for each major party, each of which contains:
+
+  - `before`: Character. The name (as listed in this tibble's `party` column) of the major party's platform that precedes the minor party.
+  
+  - `after`: Character. The name (as listed in this tibble's `party` column) of the major party's platform that follows the minor party.
+  
+  - `weight`: Numeric. The weight assigned to the major party.
+
+*Sample Tibble*
+```{r tibble, echo = FALSE}
+get("sample_data_tibble", envir = asNamespace("IScorePackage")) |>
+  dplyr::mutate(text = stringr::str_trunc(text, 100)) |>
+  dplyr::mutate(major_party_platforms = purrr::map_chr(minor_party, function(x) ifelse(x, "&lt;list&gt;", "NULL"))) |>
+  knitr::kable(digits = 4)
+```
+
+*Sample Major Party Platforms List*
+```{r sample_platform_list, echo = FALSE}
+sample_data_product <- get("sample_data_tibble", envir = asNamespace("IScorePackage")) |>
+  dplyr::slice_tail(n = 1) |>
+  dplyr::pull(major_party_platforms)
+```
+
+`[[1]]`
+
+`[[1]]`
+```{r sample_platform_list_1, echo = FALSE}
+sample_data_product[[1]][[1]] |>
+  as.data.frame() |>
+  knitr::kable(digits = 4)
+```
+
+`[[2]]`
+```{r sample_platform_list_2, echo = FALSE}
+sample_data_product[[1]][[2]] |>
+  as.data.frame() |>
+  knitr::kable(digits = 4)
+```
+
+### Processing
+
+Once you have built your tibble of platforms, you can feed it into the IScorePackage analysis pipeline, which consists of:
+
+1. `configure_python()`: Sets up a Python virtual environment and downloads the Python tools required for this package's analysis. This function only needs to be run once per R session and is required only for `process_platform_emphasis()`.
+
+2. `process_platform_emphasis()`: Calculates each platform's emphasis score for each issue area using the ManifestoBERTA model.
+
+3. `process_platform_position()`: Calculates each platform's position score for each issue area using the Wordfish algorithm.
+
+4. `calculate_iscores()`: Uses the calculated emphasis and position scores, as well as the provided information about which major-party platforms are relevant to which minor parties, to calculate each minor party's I-Scores. If you set `confidence_intervals = TRUE`, the function will also calculate bootstrapped confidence intervals for each minor party's I-Scores.
+
+The arguments that can be used to customize each function are described in the function documentation (`?function_name`).
+
+The result of the pipeline is a tibble with one row per minor party, containing a scores list column with the minor party's `ie_score`, `ie_score_interpreted`, and `ip_score.`
+
+```{r processing_script, eval = FALSE}
+library(IScorePackage)
+
+configure_python()
+results <- process_platform_emphasis(data_tibble) |> # process_platform_emphasis() may take a while
+  process_platform_position() |>
+  calculate_iscores(confidence_intervals = TRUE)
+
+results
+```
+
+*Sample Output*
+```{r processing_result, echo = FALSE}
+get("sample_data_product", envir = asNamespace("IScorePackage")) |>
+  dplyr::mutate(scores = purrr::map_chr(scores, function(x) "&lt;list&gt;"), confidence_intervals = purrr::map_chr(confidence_intervals, function(x) "&lt;tibble&gt;")) |>
+  knitr::kable(digits = 4)
+```
+
+*Sample Scores List*
+```{r sample_scores, echo = FALSE}
+get("sample_data_product", envir = asNamespace("IScorePackage")) |>
+  dplyr::slice(1) |>
+  dplyr::pull(scores) |>
+  as.data.frame() |>
+  knitr::kable(digits = 4)
+```
+
+*Sample Confidence Intervals Tibble*
+```{r sample_confidence_intervals, echo = FALSE}
+get("sample_data_product", envir = asNamespace("IScorePackage")) |>
+  dplyr::slice(1) |>
+  dplyr::pull(confidence_intervals) |>
+  as.data.frame() |>
+  knitr::kable(digits = 4)
+```
