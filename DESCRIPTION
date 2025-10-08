@@ -10,16 +10,16 @@ Authors@R: c(
     )
   )
 Description: I-Scores are a simple way to measure how successful minor political parties are at influencing the major parties in their environment.
-License: GPL (>= 3) + file LICENSE.md
+License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
 Suggests: 
     testthat (>= 3.0.0),
-    withr
+    withr,
+    huggingfaceR
 Config/testthat/edition: 3
 Imports: 
     dplyr,
-    huggingfaceR,
     purrr,
     quanteda,
     quanteda.textmodels,

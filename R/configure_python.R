@@ -8,6 +8,11 @@
 #' @export
 
 configure_python <- function(env_name = "iscores", manifestoberta_model_id = "2024-1-1") {
+  # Ensure HuggingfaceR Is Installed
+  if (!requireNamespace("huggingfaceR", quietly = TRUE)) {
+    rlang::abort("This function requires huggingfaceR. Install it from https://github.com/farach/huggingfaceR")
+  }
+
   # Ensure Python Is Not Bound To Another Environment
   Sys.setenv(RETICULATE_AUTOCONFIGURE = "FALSE")
   if (reticulate::py_available(initialize = FALSE)) {
