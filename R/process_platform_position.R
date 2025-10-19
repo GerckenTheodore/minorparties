@@ -37,16 +37,6 @@ process_platform_position <- function(tibble, inclusion_threshold = 0.2) {
   if (!is.numeric(inclusion_threshold) || inclusion_threshold < 0 || inclusion_threshold > 1) rlang::abort("The inclusion_threshold must be a number between 0 and 1.")
   tibble <- tibble::as_tibble(tibble)
 
-  # Ensures python tools work
-  manifestoBERTA_test <- tryCatch(
-    {
-      result <- iscores_environment$model(list(list(text = "These principles are under threat.", text_pair = paste("Human rights and international humanitarian law are fundamental pillars of a secure global system. These principles are under threat. Some of the world's most powerful states choose to sell arms to human-rights abusing states."))))
-      is.list(result) && length(result) > 0
-    },
-    error = function(e) FALSE
-  )
-  if (!manifestoBERTA_test) stop("Python environment is not properly configured. Please run `configure_python()` to set it up.")
-
   # Pulls the sentences that correspond to each issue (Wordfish needs every sentence in an issue-area, regardless of origin, to run most accuratly)
   issues <- tibble$sentence_emphasis_scores[[1]][[1]]$scores[[1]]$issue
   labeled_sentences <- tibble |>
@@ -104,7 +94,7 @@ process_platform_position <- function(tibble, inclusion_threshold = 0.2) {
     # Runs Wordfish
     warn_message <- ""
     wordfish <- withCallingHandlers(
-      quanteda.textmodels::textmodel_wordfish(dfm),
+      suppressMessages(quanteda.textmodels::textmodel_wordfish(dfm)),
       warning = function(warn) {
         warn_message <<- conditionMessage(warn)
         invokeRestart("muffleWarning")

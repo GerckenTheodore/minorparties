@@ -180,8 +180,7 @@ IScorePackage analysis pipeline, which consists of:
 1.  `configure_python()`: Sets up a Python virtual environment and
     downloads the Python tools required for this package’s analysis.
     This function only needs to be run once per R session and is
-    required only for `process_platform_emphasis()` and
-    `process_platform_position()`.
+    required only for `process_platform_emphasis()`.
 
 2.  `process_platform_emphasis()`: Calculates each platform’s emphasis
     score for each issue area using the ManifestoBERTA model.
