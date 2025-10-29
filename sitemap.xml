@@ -1,14 +1,15 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
-<url><loc>https://gerckentheodore.github.io/IScorePackage/404.html</loc></url>
-<url><loc>https://gerckentheodore.github.io/IScorePackage/LICENSE.html</loc></url>
-<url><loc>https://gerckentheodore.github.io/IScorePackage/authors.html</loc></url>
-<url><loc>https://gerckentheodore.github.io/IScorePackage/index.html</loc></url>
-<url><loc>https://gerckentheodore.github.io/IScorePackage/reference/calculate_iscores.html</loc></url>
-<url><loc>https://gerckentheodore.github.io/IScorePackage/reference/configure_python.html</loc></url>
-<url><loc>https://gerckentheodore.github.io/IScorePackage/reference/index.html</loc></url>
-<url><loc>https://gerckentheodore.github.io/IScorePackage/reference/process_platform_emphasis.html</loc></url>
-<url><loc>https://gerckentheodore.github.io/IScorePackage/reference/process_platform_position.html</loc></url>
-<url><loc>https://gerckentheodore.github.io/IScorePackage/reference/validation.html</loc></url>
-<url><loc>https://gerckentheodore.github.io/IScorePackage/reference/weighted_party_scores.html</loc></url>
+<url><loc>https://gerckentheodore.github.io/minorparties/404.html</loc></url>
+<url><loc>https://gerckentheodore.github.io/minorparties/LICENSE.html</loc></url>
+<url><loc>https://gerckentheodore.github.io/minorparties/authors.html</loc></url>
+<url><loc>https://gerckentheodore.github.io/minorparties/index.html</loc></url>
+<url><loc>https://gerckentheodore.github.io/minorparties/news/index.html</loc></url>
+<url><loc>https://gerckentheodore.github.io/minorparties/reference/calculate_iscores.html</loc></url>
+<url><loc>https://gerckentheodore.github.io/minorparties/reference/index.html</loc></url>
+<url><loc>https://gerckentheodore.github.io/minorparties/reference/install_python.html</loc></url>
+<url><loc>https://gerckentheodore.github.io/minorparties/reference/process_platform_emphasis.html</loc></url>
+<url><loc>https://gerckentheodore.github.io/minorparties/reference/process_platform_position.html</loc></url>
+<url><loc>https://gerckentheodore.github.io/minorparties/reference/sample_data.html</loc></url>
+<url><loc>https://gerckentheodore.github.io/minorparties/reference/sample_data_results.html</loc></url>
 </urlset>
 
