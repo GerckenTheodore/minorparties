@@ -1,22 +1,21 @@
-Package: IScorePackage
+Package: minorparties
 Type: Package
-Title: An R Package To Assist In Calculating Minor Political Parties' I-Scores
-Version: 0.1.0
+Title: Quantitatively Analyze Minor Political Parties
+Version: 1.0.0
 Authors@R: c(
     person(
       "Theodore", "Gercken",
       email = "tgercken@hamilton.edu",
-      role = c("aut", "cre")
+      role = c("aut", "cre", "cph")
     )
   )
-Description: I-Scores are a simple way to measure how successful minor political parties are at influencing the major parties in their environment.
+Description: Tools for calculating I-Scores, a simple way to measure how successful minor political parties are at influencing the major parties in their environment. I-Scores are designed to be a more comprehensive measurement of minor party success than vote share and legislative seats won, the current standard measurements, which do not reflect the strategies that most minor parties employ. The procedure leverages the Manifesto Project's NLP model to identify the issue areas that sentences discuss, see Burst et al. (2024) <doi:10.25522/manifesto.manifestoberta.56topics.context.2024.1.1>, and the Wordfish algorithm to estimate the relative positions that platforms take on those issue areas, see Slapin and Proksch (2008) <doi:10.1111/j.1540-5907.2008.00338.x>.
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
 Suggests: 
     testthat (>= 3.0.0),
-    withr,
-    huggingfaceR
+    withr
 Config/testthat/edition: 3
 Imports: 
     dplyr,
@@ -31,9 +30,8 @@ Imports:
     stringr,
     tibble,
     tidyr
-Remotes:
-  farach/huggingfaceR
-RoxygenNote: 7.3.2
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3
 Depends: 
-    R (>= 3.5)
-URL: https://gerckentheodore.github.io/IScorePackage/
+    R (>= 4.1.0)
+URL: https://gerckentheodore.github.io/minorparties/

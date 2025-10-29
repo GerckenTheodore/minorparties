@@ -1,14 +1,11 @@
-#' Generate IScores From A Calculation Tibble
+#' Weight I-Score calculations
 #'
-#' ie_score_sum/ip_score_sum() properly weights each element of an IX-Score calculation tibble to produce
+#' weighted_party_scores() weights the changes of major parties by their party's set weight and then weights those using a geometric sequence (to recognize that persuading one major party is likely to incentivize others to move away from their positions while still rewarding a minor party capable of influencing multiple major parties simultaneously).
 #'
-#' @param ie_score_tibble/ip_score_tibble Tibble. The calculation tibble (created during calculate_i_scores())
-#' @param party_row Tibble. The minor party platform's row of the main tibble (the tibble input to calculate_i_scores()).
-#' @param top_issues Character vector. The minor party platform's top issues.
-#' @return List. The score(s).
 #' @keywords internal
+#' @noRd
 
-weighted_party_scores <- function(scores, weights) { # Helper function to weight the changes of major parties by their party's set weight and then weight those using a geometric sequence (to recognize that persuading one major party is likely to incentivize others to move away from their positions while still rewarding a minor party capable of influencing multiple major parties simultaneously).
+weighted_party_scores <- function(scores, weights) {
   avg_weight <- mean(weights)
   adj_weights <- weights / avg_weight
   weighted_scores <- (scores * adj_weights) |>
@@ -18,7 +15,18 @@ weighted_party_scores <- function(scores, weights) { # Helper function to weight
   sum(weighted_scores * geom_weights)
 }
 
-# Calculates Ie-Scores
+#' Calculate Ie-Scores
+#'
+#' ie_score_sum() properly weights each element of an Ie-Score calculation tibble to produce the final Ie-Score and interpreted Ie-Score for a minor party platform.
+#'
+#' @param ie_score_tibble Tibble. The calculation tibble (created during calculate_i_scores())
+#' @param party_row Tibble. The minor party platform's row of the main tibble (the tibble input to calculate_i_scores()).
+#' @param top_issues Character vector. The minor party platform's top issues.
+#' @return Named list containing the scores.
+#'
+#' @keywords internal
+#' @noRd
+
 ie_score_sum <- function(ie_score_tibble, party_row, top_issues, p_threshold) {
   calculation_tibble <- party_row |>
     purrr::pluck("overall_emphasis_scores", 1) |>
@@ -52,7 +60,18 @@ ie_score_sum <- function(ie_score_tibble, party_row, top_issues, p_threshold) {
   return(list(ie_score = ie_score, ie_score_interpreted = ie_score_interpreted))
 }
 
-# Calculates Ip-Score (using the same logic as ie_score_sum())
+#' Calculate Ip-Scores
+#'
+#' ip_score_sum() properly weights each element of an Ip-Score calculation tibble to produce the final Ip-Score for a minor party platform.
+#'
+#' @param ip_score_tibble Tibble. The calculation tibble (created during calculate_i_scores())
+#' @param party_row Tibble. The minor party platform's row of the main tibble (the tibble input to calculate_i_scores()).
+#' @param top_issues Character vector. The minor party platform's top issues.
+#' @return Named list containing the score.
+#'
+#' @keywords internal
+#' @noRd
+
 ip_score_sum <- function(ip_score_tibble, party_row, top_issues, p_threshold) {
   calculation_tibble <- party_row |>
     purrr::pluck("overall_emphasis_scores", 1) |>

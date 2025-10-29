@@ -5,7 +5,9 @@
 #' @param tibble Tibble. The tibble input to the function calling validation().
 #' @param set Character. The set of validators to apply ("position", "emphasis", "iscores", or "finished").
 #' @return Tibble of failed validation checks.
+#'
 #' @keywords internal
+#' @noRd
 
 validation <- function(tibble, set) {
   error_wrapper <- function(logic, columns = c()) { # Wrapper to ensure that a failed test returns FALSE rather than an error

@@ -9,7 +9,7 @@ process_platform_emphasis(tibble, cleaning = TRUE)
 \arguments{
 \item{tibble}{Tibble. One row per platform, containing, at minimum:
 \itemize{
-  \item{text}{: Character column. The full text of each platform.}
+\item text: Character column. The full text of each platform.
 }}
 
 \item{cleaning}{Logical. Whether to apply basic text cleaning before processing each platform. Defaults to TRUE.}
@@ -17,22 +17,28 @@ process_platform_emphasis(tibble, cleaning = TRUE)
 \value{
 Tibble. The input tibble with two additional list columns (if a platform cannot be processed due to a lack of text, the function will return an empty list for that platform):
 \itemize{
-  \item{sentence_emphasis_scores}{: List column. A list per sentence in the platform (in order), containing:}
-  \itemize{
-    \item{sentence}{: Character. The sentence.}
-    \item{scores}{: Tibble. The sentence's emphasis score on each issue-area, containing:}
-    \itemize{
-      \item{issue}{: Character column. The issue-area name.}
-      \item{score}{: Numeric column. The sentence's score for that issue-area (summing to 1).}
-    }
-    \item{overall_emphasis_scores}{: List column. A tibble with the platform's overall emphasis scores, containing:}
-    \itemize{
-      \item{issue}{: Character column. The issue-area name.}
-      \item{score}{: Numeric column. The platform's score for that issue-area}
-    }
-  }
+\item sentence_emphasis_scores: List column. A list per sentence in the platform (in order), containing:
+\itemize{
+\item sentence: Character. The sentence.
+\item scores: Tibble. The sentence's emphasis score on each issue-area, containing:
+\itemize{
+\item issue: Character column. The issue-area name.
+\item score: Numeric column. The sentence's score for that issue-area (summing to 1).
+}
+\item overall_emphasis_scores: List column. A tibble with the platform's overall emphasis scores, containing:
+\itemize{
+\item issue: Character column. The issue-area name.
+\item score: Numeric column. The platform's score for that issue-area.
+}
+}
 }
 }
 \description{
 process_platform_emphasis() takes a tibble of platforms, splits each platform into sentences, and calculates issue-area emphasis scores for each sentence and for the platform as a whole using the ManifestoBERTA model. These issue-area emphasis scores, respectively, represent the probability that each sentence is discussing each issue-area and the proportion of the platform that is devoted to each issue-area.
+}
+\examples{
+\dontshow{if (interactive()) withAutoprint(\{ # examplesIf}
+tibble <- minorparties::sample_data
+processed_tibble <- process_platform_emphasis(tibble)
+\dontshow{\}) # examplesIf}
 }

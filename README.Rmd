@@ -13,13 +13,13 @@ knitr::opts_chunk$set(
 )
 ```
 
-# IScorePackage
+# minorparties
 
 <!-- badges: start -->
 
 <!-- badges: end -->
 
-`IScorePackage` is an R package designed to allow researchers to easily calculate minor political parties' I-Scores, a quantitative measure of the extent to which a minor party influences the major parties in its political environment.
+`minorparties` is an R package designed to allow researchers to easily calculate minor political parties' I-Scores, a quantitative measure of the extent to which a minor party influences the major parties in its political environment.
 
 I-Scores are composed of two components, which capture different dimensions of minor-party influence:
 
@@ -33,18 +33,31 @@ These measures were developed by Theodore Gercken in *Beyond the Ballot Box: Tow
 
 ## Installation
 
-You can install the development version of `IScorePackage` from [GitHub](https://github.com/GerckenTheodore/IScorePackage) with:
+You can install `minorparties` from CRAN with:
 
-``` {r installation, eval = FALSE}
+``` {r installation_cran, eval = FALSE}
+install.packages("minorparties")
+```
+
+or you can install the development version of `minorparties` from [GitHub](https://github.com/GerckenTheodore/minorparties) with:
+
+``` {r installation_github, eval = FALSE}
 # install.packages("devtools")
-devtools::install_github("https://github.com/GerckenTheodore/IScorePackage")
+devtools::install_github("https://github.com/GerckenTheodore/minorparties")
+```
+
+To use `install_python()`, which is required for some functions, you must install the huggingfaceR package from [Github](https://github.com/farach/huggingfaceR) with:
+
+``` {r installation_huggingfaceR, eval = FALSE}
+# install.packages("devtools")
+devtools::install_github("https://github.com/farach/huggingfaceR")
 ```
 
 ## Useage
 
 ### Platforms
 
-To use the full `IScorePackage` pipeline, you must first obtain the party platforms of both the minor party you wish to test and the major parties in its political environment before and after the minor party's campaign. All platforms should be cleaned in accordance with the Manifesto Project's Coding Instructions (stripped of "headings, statistics, tables of contents, introductory remarks by party leaders," etc.). For example, if you were analyzing the influence of the American Libertarian Party over its 2012 and 2016 campaigns, you would use the Libertarian Party's 2012 platform as well as the Republican and Democratic Party platforms from 2012 and 2020 (published before and after the 2012–2016 movement).
+To use the full `minorparties` pipeline, you must first obtain the party platforms of both the minor party you wish to test and the major parties in its political environment before and after the minor party's campaign. All platforms should be cleaned in accordance with the Manifesto Project's Coding Instructions (stripped of "headings, statistics, tables of contents, introductory remarks by party leaders," etc.). For example, if you were analyzing the influence of the American Libertarian Party over its 2012 and 2016 campaigns, you would use the Libertarian Party's 2012 platform as well as the Republican and Democratic Party platforms from 2012 and 2020 (published before and after the 2012–2016 movement).
 
 For a larger study that involves multiple minor parties, you should include all minor and major parties in the same dataset. However, all documents must be in the same language because the Wordfish algorithm assumes a single distribution of words across all documents.
 
@@ -70,40 +83,40 @@ Once you have compiled the platforms you will use, create a tibble with one row 
 
 *Sample Tibble*
 ```{r tibble, echo = FALSE}
-get("sample_data_tibble", envir = asNamespace("IScorePackage")) |>
+minorparties::sample_data |>
   dplyr::mutate(text = stringr::str_trunc(text, 100)) |>
   dplyr::mutate(major_party_platforms = purrr::map_chr(minor_party, function(x) ifelse(x, "&lt;list&gt;", "NULL"))) |>
+  dplyr::slice(c(1, 2, 21, 22, 52)) |>
   knitr::kable(digits = 4)
 ```
 
 *Sample Major Party Platforms List*
-```{r sample_platform_list, echo = FALSE}
-sample_data_product <- get("sample_data_tibble", envir = asNamespace("IScorePackage")) |>
-  dplyr::slice_tail(n = 1) |>
-  dplyr::pull(major_party_platforms)
-```
 
 `[[1]]`
 
 `[[1]]`
 ```{r sample_platform_list_1, echo = FALSE}
-sample_data_product[[1]][[1]] |>
+platform_list <- minorparties::sample_data |>
+  dplyr::slice_tail(n = 1) |>
+  dplyr::pull(major_party_platforms)
+
+platform_list[[1]][[1]] |>
   as.data.frame() |>
   knitr::kable(digits = 4)
 ```
 
 `[[2]]`
 ```{r sample_platform_list_2, echo = FALSE}
-sample_data_product[[1]][[2]] |>
+platform_list[[1]][[2]] |>
   as.data.frame() |>
   knitr::kable(digits = 4)
 ```
 
 ### Processing
 
-Once you have built your tibble of platforms, you can feed it into the IScorePackage analysis pipeline, which consists of:
+Once you have built your tibble of platforms, you can feed it into the `minorparties` analysis pipeline, which consists of:
 
-1. `configure_python()`: Sets up a Python virtual environment and downloads the Python tools required for this package's analysis. This function only needs to be run once per R session and is required only for `process_platform_emphasis()`.
+1. `install_python()`: Sets up a Python virtual environment and downloads the Python tools required for this package's analysis. This function only needs to be run once per R session and is required only for `process_platform_emphasis()`.
 
 2. `process_platform_emphasis()`: Calculates each platform's emphasis score for each issue area using the ManifestoBERTA model.
 
@@ -118,9 +131,9 @@ You should avoid using a GUI to open the result of `process_platform_emphasis()`
 The result of the pipeline is a tibble with one row per minor party, containing a scores list column with the minor party's `ie_score`, `ie_score_interpreted`, and `ip_score.`
 
 ```{r processing_script, eval = FALSE}
-library(IScorePackage)
+library(minorparties)
 
-configure_python()
+install_python()
 results <- process_platform_emphasis(data_tibble) |> # process_platform_emphasis() may take a while
   process_platform_position() |>
   calculate_iscores(confidence_intervals = TRUE)
@@ -130,14 +143,14 @@ results
 
 *Sample Output*
 ```{r processing_result, echo = FALSE}
-get("sample_data_product", envir = asNamespace("IScorePackage")) |>
+minorparties::sample_data_results |>
   dplyr::mutate(scores = purrr::map_chr(scores, function(x) "&lt;list&gt;"), confidence_intervals = purrr::map_chr(confidence_intervals, function(x) "&lt;tibble&gt;")) |>
   knitr::kable(digits = 4)
 ```
 
 *Sample Scores List*
 ```{r sample_scores, echo = FALSE}
-get("sample_data_product", envir = asNamespace("IScorePackage")) |>
+minorparties::sample_data_results |>
   dplyr::slice(1) |>
   dplyr::pull(scores) |>
   as.data.frame() |>
@@ -146,7 +159,7 @@ get("sample_data_product", envir = asNamespace("IScorePackage")) |>
 
 *Sample Confidence Intervals Tibble*
 ```{r sample_confidence_intervals, echo = FALSE}
-get("sample_data_product", envir = asNamespace("IScorePackage")) |>
+minorparties::sample_data_results |>
   dplyr::slice(1) |>
   dplyr::pull(confidence_intervals) |>
   as.data.frame() |>

@@ -18,35 +18,35 @@ calculate_iscores(
 \arguments{
 \item{tibble}{Tibble. One row per platform, containing, (this function is designed to work with the output of process_platform_position()):
 \itemize{
-  \item{party}{: Character column. The party's name (this column must be unique for each platform).}
-  \item{sentence_emphasis_scores}{: List column. A list per sentence in the platform (in order), containing:}
-  \itemize{
-    \item{sentence}{: Character. The sentence.}
-    \item{scores}{: Tibble. The sentence's emphasis score on each issue-area, containing:}
-    \itemize{
-      \item{issue}{: Character column. The issue-area name.}
-      \item{score}{: Numeric column. The sentence's score for that issue-area (summing to 1).}
-    }
-  }
-  \item{overall_emphasis_scores}{: List column. A tibble with the platform's overall emphasis scores, containing:}
-  \itemize{
-    \item{issue}{: Character column. The issue-area name.}
-    \item{score}{: Numeric column. The platform's score for that issue-area}
-  }
-  \item{position_scores}{: List column. A tibble, containing:}
-  \itemize{
-    \item{issue}{: Character column. The issue-area name.}
-    \item{position_score}{: Numeric column. The platform's position score on the issue-area (NA if the platform did not have enough material about the issue-area to generate a score).}
-    \item{se}{: Numeric column. The standard error of the position score.}
-    \item{convergence}{: Logical column. Whether the Wordfish model converged (if the estimation algorithm reached a stable set of position scores without divergence).}
-  }
-  \item{minor_party}{: Logical column. Whether the party is a minor party.}
-  \item{major_party_platforms}{: List column. Only required for minor parties. A list containing a list for each major party, each of which contains:}
-  \itemize{
-    \item{before}{: Character. The name (as listed in this tibble's party column) of the major party's platform that precedes the minor party.}
-    \item{after}{: Character. The name (as listed in this tibble's party column) of the major party's platform that follows the minor party.}
-    \item{weight}{: Numeric. The weight assigned to the major party.}
-  }
+\item party: Character column. The party's name (this column must be unique for each platform).
+\item sentence_emphasis_scores: List column. A list per sentence in the platform (in order), containing:
+\itemize{
+\item sentence: Character. The sentence.
+\item scores: Tibble. The sentence's emphasis score on each issue-area, containing:
+\itemize{
+\item issue: Character column. The issue-area name.
+\item score: Numeric column. The sentence's score for that issue-area (summing to 1).
+}
+\item overall_emphasis_scores: List column. A tibble with the platform's overall emphasis scores, containing:
+\itemize{
+\item issue: Character column. The issue-area name.
+\item score: Numeric column. The platform's score for that issue-area
+}
+\item position_scores: List column. A tibble, containing:
+\itemize{
+\item issue: Character column. The issue-area name.
+\item position_score: Numeric column. The platform's position score on the issue-area (NA if the platform did not have enough material about the issue-area to generate a score).
+\item se: Numeric column. The standard error of the position score.
+\item convergence: Logical column. Whether the Wordfish model converged (if the estimation algorithm reached a stable set of position scores without divergence).
+}
+\item minor_party: Logical column. Whether the party is a minor party.
+\item major_party_platforms: List column. Only required for minor parties. A list containing a list for each major party, each of which contains:
+\itemize{
+\item before: Character. The name (as listed in this tibble's party column) of the major party's platform that precedes the minor party.
+\item after: Character. The name (as listed in this tibble's party column) of the major party's platform that follows the minor party.
+\item weight: Numeric. The weight assigned to the major party.
+}
+}
 }}
 
 \item{p_threshold}{Numeric. The maximum p-value at which a relationship is considered significant. Defaults to 0.05.}
@@ -66,27 +66,35 @@ calculate_iscores(
 \value{
 Tibble. The input tibble, filtered to only include minor parties, with the following columns:
 \itemize{
-  \item{party}{: Character column. The party's name.}
-  \item{scores}{: List column. A list, containing:}
-  \itemize{
-    \item{ie_score}{: Numeric. The party's Ie-Score.}
-    \item{ie_score_interpreted}{: Numeric. The party's interpreted Ie-Score.}
-    \item{ip_score}{: Numeric. The party's Ip-Score.}
-  }
-  \item{calculation_tables}{: List column (present if calculation_tables argument is TRUE). A list, containing:}
-  \itemize{
-    \item{ie_score_table}{: Tibble. The table used to calculate the party's Ie-Score.}
-    \item{ip_score_table}{: Tibble. The table used to calculate the party's Ip-Score.}
-  }
-  \item{confidence_intervals}{: List column (present if confidence_intervals argument is TRUE). A tibble, containing:}
-  \itemize{
-    \item{side}{: Character column. "lower" or "upper", indicating the bounds of the confidence interval.}
-    \item{ie_score}{: Numeric column. The bound of the confidence interval for the party's Ie-Score.}
-    \item{ie_score_interpreted}{: Numeric column. The bound of the confidence interval for the party's interpreted Ie-Score.}
-    \item{ip_score}{: Numeric column. The bound of the confidence interval for the party's Ip-Score.}
-  }
+\item party: Character column. The party's name.
+\item scores: List column. A list, containing:
+\itemize{
+\item ie_score: Numeric. The party's Ie-Score.
+\item ie_score_interpreted: Numeric. The party's interpreted Ie-Score
+\item ip_score: Numeric. The party's Ip-Score.
+}
+\item calculation_tables: List column (present if calculation_tables argument is TRUE). A list, containing:
+\itemize{
+\item ie_score_table: Tibble. The table used to calculate the party's Ie-Score.
+\item ip_score_table: Tibble. The table used to calculate the party's Ip-Score.
+}
+\item confidence_intervals: List column (present if confidence_intervals argument is TRUE). A tibble, containing:
+\itemize{
+\item side: Character column. "lower" or "upper", indicating the bounds of the confidence interval.
+\item ie_score: Numeric column. The bound of the confidence interval for the party's Ie-Score.
+\item ie_score_interpreted: Numeric column. The bound of the confidence interval for the party's interpreted Ie-Score.
+\item ip_score: Numeric column. The bound of the confidence interval for the party's Ip-Score.
+}
 }
 }
 \description{
 calculate_iscores() takes a tibble of platforms that have already been processed with process_platform_emphasis() and process_platform_position() and calculates I-Scores for each minor party in the tibble. I-Scores represent the extent to which a minor party influenced the major parties in its political environment on its top issues. Ie-Scores reflect changes in the emphasis major parties place on a minor party’s core issues (Ie-Scores measure the change in percentage points; interpreted Ie-Scores measure the change in percent), while Ip-Scores track shifts in the position of major parties on those issues.
+}
+\examples{
+\dontshow{if (interactive()) withAutoprint(\{ # examplesIf}
+tibble <- minorparties::sample_data |>
+  minorparties::process_platform_emphasis() |>
+  minorparties::process_platform_position()
+processed_tibble <- calculate_iscores(tibble)
+\dontshow{\}) # examplesIf}
 }

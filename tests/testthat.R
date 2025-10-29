@@ -7,6 +7,6 @@
 # * https://testthat.r-lib.org/articles/special-files.html
 
 library(testthat)
-library(IScorePackage)
+library(minorparties)
 
-test_check("IScorePackage")
+test_check("minorparties")

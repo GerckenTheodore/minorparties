@@ -1,17 +1,15 @@
-#' Set up the python tools required for IScorePackage's analysis
+#' Set up the python tools required for calculating I-Scores
 #'
-#' configure_python() uses reticulate to create or activate a Python virtual environment and install the required packages for running spacyr (sentence tokenization) and huggingfaceR (issue-area classification via ManifestoBERTA).
+#' install_python() uses reticulate to create or activate a Python virtual environment and install the required packages for running spacyr (sentence tokenization) and huggingfaceR (issue-area classification via ManifestoBERTA).
 #'
 #' @param env_name Character. Name of the Python virtual environment to set up. Defaults to "iscores".
 #' @param manifestoberta_model_id Character. Version of the ManifestoBERTA model to load (must match a valid model). Defaults to "2024-1-1".
 #' @return Invisibly returns TRUE.
 #' @export
 
-configure_python <- function(env_name = "iscores", manifestoberta_model_id = "2024-1-1") {
+install_python <- function(env_name = "iscores", manifestoberta_model_id = "2024-1-1") {
   # Ensures huggingfaceR is installed
-  if (!requireNamespace("huggingfaceR", quietly = TRUE)) {
-    rlang::abort("This function requires huggingfaceR. Install it from https://github.com/farach/huggingfaceR")
-  }
+  if (!rlang::is_installed("huggingfaceR")) rlang::abort("This function requires the huggingfaceR package. Install it from https://github.com/farach/huggingfaceR")
 
   # Ensures python is not bound to another environment and, if it is not, sets up the environment
   Sys.setenv(RETICULATE_AUTOCONFIGURE = "FALSE")
@@ -30,10 +28,13 @@ configure_python <- function(env_name = "iscores", manifestoberta_model_id = "20
   spacyr::spacy_download_langmodel("en_core_web_sm")
 
   # Sets up huggingfaceR and loads ManifestoBERTA
-  huggingfaceR::hf_python_depends()
+  hf_python_depends <- getExportedValue("huggingfaceR", "hf_python_depends")
+  hf_load_pipeline <- getExportedValue("huggingfaceR", "hf_load_pipeline")
+
+  hf_python_depends()
   tryCatch(
     {
-      iscores_environment[["model"]] <- huggingfaceR::hf_load_pipeline(paste0("manifesto-project/manifestoberta-xlm-roberta-56policy-topics-context-", manifestoberta_model_id), task = "text-classification", tokenizer = "xlm-roberta-large", truncation = TRUE, max_length = 512L, trust_remote_code = TRUE, top_k = NULL)
+      iscores_environment[["model"]] <- hf_load_pipeline(paste0("manifesto-project/manifestoberta-xlm-roberta-56policy-topics-context-", manifestoberta_model_id), task = "text-classification", tokenizer = "xlm-roberta-large", truncation = TRUE, max_length = 512L, trust_remote_code = TRUE, top_k = NULL)
     },
     error = function(e) rlang::abort("Could not load the specified ManifestoBERTA model. Ensure the model ID exists and Hugging Face is accessible.")
   )
